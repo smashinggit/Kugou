@@ -1,13 +1,12 @@
 package com.cs.kugou
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.cs.framework.http.HttpHepler
+import com.cs.framework.base.BaseActivity
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
     }
+
+    override fun getLayoutId(): Int = R.layout.activity_main
 }

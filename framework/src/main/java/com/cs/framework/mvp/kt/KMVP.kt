@@ -3,7 +3,10 @@ package com.cs.framework.mvp.kt
 import android.app.Activity
 
 /**
- * Created by chensen on 2018/1/17.
+ *
+ * author : ChenSen
+ * data : 2018/1/18
+ * desc:
  */
 inline fun <reified P : KPresenter<P, V>, reified V : KView<P, V>> P.bind(ui: V): P {
     this.ui = ui

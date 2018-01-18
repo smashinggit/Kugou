@@ -9,7 +9,10 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 /**
- * Created by chensen on 2018/1/17.
+ *
+ * author : ChenSen
+ * data : 2018/1/18
+ * desc:
  */
 object HttpHepler {
     var BASE_URL = ""

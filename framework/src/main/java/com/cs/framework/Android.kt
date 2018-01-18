@@ -7,7 +7,10 @@ import android.util.Log
 import android.view.WindowManager
 
 /**
- * Created by chensen on 2018/1/17.
+ *
+ * author : ChenSen
+ * data : 2018/1/18
+ * desc:
  */
 object Android {
     public val DEV = true

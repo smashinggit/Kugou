@@ -1,9 +1,11 @@
 package com.cs.framework.mvp;
 
 /**
- * Created by chensen on 2018/1/17.
+ *
+ * author : ChenSen
+ * data : 2018/1/18
+ * desc:
  */
-
 public interface P<T extends V> {
     void regist();
 

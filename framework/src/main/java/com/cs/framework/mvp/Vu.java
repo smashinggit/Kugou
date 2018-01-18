@@ -7,7 +7,10 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 /**
- * Created by chensen on 2018/1/17.
+ *
+ * author : ChenSen
+ * data : 2018/1/18
+ * desc:
  */
 
 public abstract class Vu<T extends P> implements V<T> {
