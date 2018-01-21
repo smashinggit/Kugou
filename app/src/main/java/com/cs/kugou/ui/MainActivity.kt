@@ -7,12 +7,10 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
-import android.widget.SeekBar
 import com.cs.framework.base.BaseActivity
 import com.cs.framework.mvp.kt.bind
 import com.cs.framework.mvp.kt.unbind
 import com.cs.kugou.R
-import com.cs.kugou.audio.Audio
 import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.mvp.presenter.MainPresenter
 import com.cs.kugou.mvp.view.MainView
@@ -36,13 +34,21 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         var mView = MainView(this)
-        mPresenter = MainPresenter()
+        mPresenter = MainPresenter(this)
         mPresenter.bind(mView)
 
         var intent = Intent(this, PlayerService::class.java)
         bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
+    override fun onBackPressed() {
+        if (flContent.visibility == View.VISIBLE) {
+            mPresenter.hideFragment()
+            return
+        }
+
+
+    }
 
     override fun onDestroy() {
         mPresenter.unbind()

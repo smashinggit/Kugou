@@ -1,5 +1,7 @@
 package com.cs.kugou.mvp.contract
 
+import android.content.Intent
+import android.support.v4.app.Fragment
 import com.cs.framework.mvp.kt.KPresenter
 import com.cs.framework.mvp.kt.KView
 
@@ -17,13 +19,14 @@ interface MainContract {
         fun pause()
         fun next()
         fun pre()
+        fun showFragment(fragment: Fragment)
+        fun hideFragment()
     }
 
     interface View : KView<Presenter, View> {
-        fun play()
-        fun pause()
-        fun next()
-        fun pre()
+        fun showPlay()
+        fun showPause()
+        fun showFragment(isShow: Boolean)
     }
 
 

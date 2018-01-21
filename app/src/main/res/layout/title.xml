@@ -2,16 +2,16 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:paddingRight="20dp"
+    android:layout_height="45dp"
+    android:background="@color/colorPrimary"
     android:paddingLeft="20dp"
-    android:background="@color/colorPrimary">
+    android:paddingRight="20dp">
 
 
-    <ImageView
-        android:id="@+id/ivMenu"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
+    <Button
+        android:id="@+id/btnMenu"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:background="@drawable/select_ic_menu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="parent"
@@ -19,32 +19,21 @@
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tablayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintLeft_toRightOf="@+id/ivMenu"
-        app:layout_constraintRight_toLeftOf="@+id/ivSearch"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintLeft_toRightOf="@+id/btnMenu"
+        app:layout_constraintRight_toLeftOf="@+id/btnSearch"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabGravity="center"
+        app:tabIndicatorColor="@color/white"
+        app:tabMinWidth="50dp"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/white" />
 
-        <android.support.design.widget.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="看" />
-
-        <android.support.design.widget.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="看" />
-
-        <android.support.design.widget.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="看" />
-    </android.support.design.widget.TabLayout>
-
-    <ImageView
-        android:id="@+id/ivSearch"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+    <Button
+        android:id="@+id/btnSearch"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:background="@drawable/select_ic_search"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"

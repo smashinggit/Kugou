@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="@drawable/gradient_gray" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/line" />
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="70dp">
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="14dp" />
+
+            <TextView
+                android:id="@+id/tvMusicName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="18dp"
+                android:text="我好想你"
+                android:textColor="@color/tvBlack"
+                android:textSize="12dp"
+                app:layout_constraintLeft_toLeftOf="@id/seekBar"
+                app:layout_constraintTop_toBottomOf="@id/seekBar" />
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="18dp"
+                android:text="徐佳莹"
+                android:textColor="@color/tvColor"
+                android:textSize="10dp"
+                app:layout_constraintLeft_toLeftOf="@id/seekBar"
+                app:layout_constraintTop_toBottomOf="@id/tvMusicName" />
+
+            <ImageView
+                android:id="@+id/ivPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="12dp"
+                android:src="@drawable/select_play"
+                app:layout_constraintRight_toLeftOf="@id/ivNext"
+                app:layout_constraintTop_toBottomOf="@id/seekBar" />
+
+            <ImageView
+                android:id="@+id/ivPause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="12dp"
+                android:src="@drawable/select_pause"
+                android:visibility="gone"
+                app:layout_constraintRight_toLeftOf="@id/ivNext"
+                app:layout_constraintTop_toBottomOf="@id/seekBar" />
+
+            <ImageView
+                android:id="@+id/ivNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="12dp"
+                android:src="@drawable/select_next"
+                app:layout_constraintRight_toLeftOf="@id/ivList"
+                app:layout_constraintTop_toBottomOf="@id/seekBar" />
+
+            <ImageView
+                android:id="@+id/ivList"
+                android:layout_marginRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/select_list"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/seekBar" />
+        </android.support.constraint.ConstraintLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ivCorver"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:outlineProvider="background"
+        android:elevation="10dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/record"
+        android:visibility="visible" />
+
+</FrameLayout>

@@ -23,5 +23,12 @@ abstract class BaseFragment : Fragment() {
         return mStateLayout.rootView()
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        init()
+    }
+
+    abstract fun init()
+
     abstract fun getLayoutId(): Int
 }

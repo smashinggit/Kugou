@@ -18,9 +18,9 @@ object Audio {
     val STATE_PAUSE = 0  //暂停
     val STATE_PLAYING = 1 //播放中
     val STATE_PREPRAED = 2//就绪
-    val STATE_Loading = 3 //加载中
+    val STATE_LOADING = 3 //加载中
 
-    var mCurrentState = STATE_Loading
+    var mCurrentState = STATE_LOADING
 
 
     var mPlayer: MediaPlayer = MediaPlayer()
@@ -29,7 +29,7 @@ object Audio {
     object : Handler() {
         override fun handleMessage(msg: Message?) {
             super.handleMessage(msg)
-            if (mListener != null) {
+            if (mListener != null && mCurrentState == STATE_PLAYING) {
                 mListener?.onProgressChanged(getPlayPosition())
                 sendEmptyMessageDelayed(0, 1000)
             }
@@ -40,6 +40,7 @@ object Audio {
         if (mCurrentState == STATE_PREPRAED || mCurrentState == STATE_PAUSE) {
             mCurrentState = STATE_PLAYING
             mPlayer.start()
+            mHandler.sendEmptyMessage(0)
         }
     }
 
@@ -47,6 +48,7 @@ object Audio {
         if (mCurrentState == STATE_PLAYING) {
             mCurrentState = STATE_PAUSE
             mPlayer.pause()
+            mHandler.removeMessages(0)
         }
     }
 
@@ -60,7 +62,7 @@ object Audio {
         mPlayer.setOnPreparedListener {
             mCurrentState = STATE_PREPRAED
             mListener?.onPrepared()
-            mHandler.sendEmptyMessage(0)
+            mListener?.onProgressChanged(getPlayPosition())
         }
     }
 
