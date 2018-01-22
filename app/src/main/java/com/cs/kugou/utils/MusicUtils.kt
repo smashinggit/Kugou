@@ -33,6 +33,7 @@ object MusicUtils {
                     if (checkIsMusic(duration, size)) {
                         var music = Music(title, album, artist, url, display_name, year, duration, size)
                         musicList.add(music)
+                        Android.log("本地音乐  " + music.toString())
                     }
                 }
             }
@@ -56,12 +57,31 @@ object MusicUtils {
 
         var minute = duration / 1000 / 60
         var second = duration / 1000 % 60
-        if (minute <= 0 && second <= 30)
+        if (minute <= 0 && second <= 60)
             return false
         if (size <= 1024 * 1024)
             return false
 
         return true
+    }
+
+
+    /**
+     * 格式化音乐文件名称,返回 歌手名 和 歌曲名
+     */
+    fun formatMusic(music: Music): Array<String>? {
+
+        val split = music.name?.replace(" ", "")?.split(".")
+        val info = split?.get(0)?.split("-")
+
+        if (info?.size == 1)
+            return arrayOf("未知", info[0])
+        else if (info?.size == 2)
+            return arrayOf(info[0], info[1])
+        else if (info?.size == 3)
+            return arrayOf(info[0] + "-" + info[1], info[2])  //如：A-Lin - 听见下雨的声音 (Live).mp3
+        else
+            return arrayOf("未知", "未知")
     }
 
 

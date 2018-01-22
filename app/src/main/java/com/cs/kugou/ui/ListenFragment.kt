@@ -37,7 +37,7 @@ class ListenFragment : Fragment() {
         recyclerview.layoutManager = GridLayoutManager(context!!, 3, GridLayoutManager.VERTICAL, false)
 
         llLoacl.setOnClickListener {
-            (activity as MainActivity).mPresenter.showFragment(LocalMusicFragment())
+            (activity as MainActivity).mPresenter.addFragment(LocalMusicFragment(), "LocalMusicFragment")
         }
         llLike.setOnClickListener { }
         llDownLoad.setOnClickListener { }

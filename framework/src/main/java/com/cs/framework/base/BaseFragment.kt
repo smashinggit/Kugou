@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.cs.framework.Android
 
 /**
  *
@@ -19,7 +20,8 @@ abstract class BaseFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         var view = inflater?.inflate(getLayoutId(), null, false)
         mStateLayout = StateLayout(inflater, view)
-
+        Android.log("onCreateView")
+        mStateLayout.showContentView()
         return mStateLayout.rootView()
     }
 

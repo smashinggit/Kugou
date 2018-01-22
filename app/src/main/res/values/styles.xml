@@ -7,7 +7,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <item name="android:selectableItemBackground">@null</item>
+        <!--点击按钮时的波纹效果-->
+        <!--<item name="android:selectableItemBackground">@null</item>-->
     </style>
 
 </resources>

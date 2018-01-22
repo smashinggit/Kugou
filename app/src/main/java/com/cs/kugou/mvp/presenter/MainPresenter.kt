@@ -8,6 +8,7 @@ import com.cs.kugou.R
 import com.cs.kugou.audio.Audio
 import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.ui.MainActivity
+import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  *
@@ -16,18 +17,18 @@ import com.cs.kugou.ui.MainActivity
  * desc:
  */
 class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
+    override fun popFragment() {
+        (context as MainActivity).supportFragmentManager.popBackStack()
+    }
 
-
-    override fun showFragment(fragment: Fragment) {
+    override fun addFragment(fragment: Fragment, tag: String) {
         (context as MainActivity).supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.flContent, fragment).commit()
-        ui?.showFragment(true)
+                .replace(R.id.flContent, fragment, tag)
+                .addToBackStack(tag)
+                .commit()
     }
 
-    override fun hideFragment() {
-        ui?.showFragment(false)
-    }
 
     override fun play() {
         Audio.play()

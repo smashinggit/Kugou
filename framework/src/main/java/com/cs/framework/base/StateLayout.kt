@@ -38,19 +38,19 @@ class StateLayout(var inflater: LayoutInflater, var contentView: View) {
         showView(0)
     }
 
-    private fun showEmptyView() {
+    fun showEmptyView() {
         showView(1)
     }
 
-    private fun showErrorView() {
+    fun showErrorView() {
         showView(2)
     }
 
-    private fun showNonetView() {
+    fun showNonetView() {
         showView(3)
     }
 
-    private fun showContentView() {
+    fun showContentView() {
         showView(4)
     }
 

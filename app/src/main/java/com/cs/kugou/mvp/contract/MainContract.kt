@@ -19,8 +19,8 @@ interface MainContract {
         fun pause()
         fun next()
         fun pre()
-        fun showFragment(fragment: Fragment)
-        fun hideFragment()
+        fun addFragment(fragment: Fragment,tag:String)
+        fun popFragment()
     }
 
     interface View : KView<Presenter, View> {
