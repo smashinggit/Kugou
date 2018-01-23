@@ -8,8 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.cs.kugou.R
-import com.cs.kugou.bean.Music
-import com.cs.kugou.utils.MusicUtils
+import com.cs.kugou.db.Music
 
 /**
  *
@@ -22,16 +21,15 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
 
     override fun onBindViewHolder(holder: MyHolder?, position: Int) {
         val music = list[position]
-        val musicInfo = MusicUtils.formatMusic(music)
 
-        holder?.tvArtist?.text = musicInfo?.get(0)
-        holder?.tvMusicName?.text = musicInfo?.get(1)
+        holder?.tvArtist?.text = music.artist
+        holder?.tvMusicName?.text = music.name
 
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): MyHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_localmusic, parent,false)
+        val view = LayoutInflater.from(context).inflate(R.layout.item_localmusic, parent, false)
         return MyHolder(view)
     }
 

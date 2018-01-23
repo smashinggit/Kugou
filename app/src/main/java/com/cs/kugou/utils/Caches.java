@@ -24,13 +24,13 @@ public class Caches {
                 .getString(key, "");
     }
 
-    //第一次扫描本地歌曲
-    public static void firstScan() {
-        Caches.save("scan", "true");
-    }
 
-    public static boolean isFirstScan() {
+    //是否扫描本地歌曲
+    public static boolean isScaned() {
         return Caches.query("scan").equals("true");
     }
 
+    public static void scaned() {
+        Caches.save("scan", "true");
+    }
 }

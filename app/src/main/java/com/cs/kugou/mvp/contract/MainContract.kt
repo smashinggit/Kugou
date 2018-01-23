@@ -21,6 +21,7 @@ interface MainContract {
         fun pre()
         fun addFragment(fragment: Fragment,tag:String)
         fun popFragment()
+        fun readDataFromDB()
     }
 
     interface View : KView<Presenter, View> {

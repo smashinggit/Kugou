@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
 import com.cs.framework.Android
-import com.cs.kugou.bean.Music
+import com.cs.kugou.db.Music
 
 
 /**
@@ -31,7 +31,20 @@ object MusicUtils {
                     val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE))//歌曲文件的大小
 
                     if (checkIsMusic(duration, size)) {
-                        var music = Music(title, album, artist, url, display_name, year, duration, size)
+
+                        val musicInfo = formatMusic(display_name)
+                        var artist = musicInfo?.get(0)
+                        var musicName = musicInfo?.get(1)
+
+                        var music = Music()
+                        music.name = musicName
+                        music.artist = artist
+                        music.url = url
+                        music.album = album
+                        music.duration = duration
+                        music.year = year
+                        music.size = size
+
                         musicList.add(music)
                         Android.log("本地音乐  " + music.toString())
                     }
@@ -39,6 +52,7 @@ object MusicUtils {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            Android.log("扫描本地音乐出错 $e ")
         } finally {
             cursor?.let {
                 it.close()
@@ -69,9 +83,9 @@ object MusicUtils {
     /**
      * 格式化音乐文件名称,返回 歌手名 和 歌曲名
      */
-    fun formatMusic(music: Music): Array<String>? {
+    fun formatMusic(name: String): Array<String>? {
 
-        val split = music.name?.replace(" ", "")?.split(".")
+        val split = name.replace(" ", "")?.split(".")
         val info = split?.get(0)?.split("-")
 
         if (info?.size == 1)

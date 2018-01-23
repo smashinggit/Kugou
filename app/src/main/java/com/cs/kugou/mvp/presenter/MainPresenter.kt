@@ -1,14 +1,18 @@
 package com.cs.kugou.mvp.presenter
 
 import android.content.Context
-import android.content.Intent
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
+import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.R
 import com.cs.kugou.audio.Audio
+import com.cs.kugou.db.Music
+import com.cs.kugou.db.User
+import com.cs.kugou.module.MusicModule
 import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.ui.MainActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import com.raizlabs.android.dbflow.kotlinextensions.*
 
 /**
  *
@@ -17,6 +21,15 @@ import kotlinx.android.synthetic.main.activity_main.*
  * desc:
  */
 class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
+
+    override fun readDataFromDB() {
+        MusicModule.readLocalList()
+        MusicModule.readPlayList()
+        MusicModule.readLikeList()
+        MusicModule.readDownloadList()
+        MusicModule.readRecentList()
+    }
+
     override fun popFragment() {
         (context as MainActivity).supportFragmentManager.popBackStack()
     }
@@ -24,6 +37,8 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
     override fun addFragment(fragment: Fragment, tag: String) {
         (context as MainActivity).supportFragmentManager
                 .beginTransaction()
+                .setCustomAnimations(R.anim.slide_right_in,R.anim.slide_right_in)
+              //  .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.flContent, fragment, tag)
                 .addToBackStack(tag)
                 .commit()
