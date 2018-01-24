@@ -2,17 +2,13 @@ package com.cs.kugou.mvp.presenter
 
 import android.content.Context
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentTransaction
-import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.R
-import com.cs.kugou.audio.Audio
-import com.cs.kugou.db.Music
-import com.cs.kugou.db.User
 import com.cs.kugou.module.MusicModule
 import com.cs.kugou.mvp.contract.MainContract
+import com.cs.kugou.service.PlayerService
 import com.cs.kugou.ui.MainActivity
-import com.raizlabs.android.dbflow.kotlinextensions.*
+import org.greenrobot.eventbus.EventBus
 
 /**
  *
@@ -23,11 +19,11 @@ import com.raizlabs.android.dbflow.kotlinextensions.*
 class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
 
     override fun readDataFromDB() {
-        MusicModule.readLocalList()
-        MusicModule.readPlayList()
-        MusicModule.readLikeList()
-        MusicModule.readDownloadList()
-        MusicModule.readRecentList()
+        MusicModule.readMusicFromDB(MusicModule.PLAY)
+        MusicModule.readMusicFromDB(MusicModule.LOCAL)
+        MusicModule.readMusicFromDB(MusicModule.LIKE)
+        MusicModule.readMusicFromDB(MusicModule.DOWNLOAD)
+        MusicModule.readMusicFromDB(MusicModule.RECENT)
     }
 
     override fun popFragment() {
@@ -37,8 +33,8 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
     override fun addFragment(fragment: Fragment, tag: String) {
         (context as MainActivity).supportFragmentManager
                 .beginTransaction()
-                .setCustomAnimations(R.anim.slide_right_in,R.anim.slide_right_in)
-              //  .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_right_in)
+                //  .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.flContent, fragment, tag)
                 .addToBackStack(tag)
                 .commit()
@@ -46,16 +42,17 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
 
 
     override fun play() {
-        Audio.play()
+        sendMusicEvent(PlayerService.ACTION_PLAY)
         ui?.showPause()
     }
 
     override fun pause() {
-        Audio.pause()
+        sendMusicEvent(PlayerService.ACTION_PAUSE)
         ui?.showPlay()
     }
 
     override fun next() {
+        sendMusicEvent(PlayerService.ACTION_NEXT)
         ui?.showPause()
     }
 
@@ -66,5 +63,14 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
     }
 
     override fun destory() {
+    }
+
+
+    /**
+     * 向PlayerService发送指令，控制音乐
+     */
+    fun sendMusicEvent(action: Int) {
+        var event = PlayerService.MusicEvent(action)
+        EventBus.getDefault().post(event)
     }
 }

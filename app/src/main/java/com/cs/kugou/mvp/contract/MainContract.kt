@@ -1,9 +1,9 @@
 package com.cs.kugou.mvp.contract
 
-import android.content.Intent
 import android.support.v4.app.Fragment
 import com.cs.framework.mvp.kt.KPresenter
 import com.cs.framework.mvp.kt.KView
+import com.cs.kugou.db.Music
 
 /**
  *
@@ -19,7 +19,7 @@ interface MainContract {
         fun pause()
         fun next()
         fun pre()
-        fun addFragment(fragment: Fragment,tag:String)
+        fun addFragment(fragment: Fragment, tag: String)
         fun popFragment()
         fun readDataFromDB()
     }
@@ -27,7 +27,9 @@ interface MainContract {
     interface View : KView<Presenter, View> {
         fun showPlay()
         fun showPause()
+        fun shwoMusicInfo(music: Music)
         fun showFragment(isShow: Boolean)
+        fun setProgress(progress: Int, max: Int)
     }
 
 

@@ -49,4 +49,8 @@ dependencies {
     compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
     // RXJava 2 Kotlin Extensions Support
     compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
+
+    implementation 'org.greenrobot:eventbus:3.1.1'
+
+    implementation 'com.google.code.gson:gson:2.8.2'
 }

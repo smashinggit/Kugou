@@ -1,8 +1,13 @@
 package com.cs.kugou.utils;
 
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.cs.kugou.App;
+import com.cs.kugou.db.Music;
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 /**
  * author : ChenSen
@@ -32,5 +37,14 @@ public class Caches {
 
     public static void scaned() {
         Caches.save("scan", "true");
+    }
+
+
+    public static String  getLastPlaying() {
+        return Caches.query("lastPlaying");
+    }
+
+    public static void saveLastPlaying(Music music) {
+        Caches.save("lastPlaying", new Gson().toJson(music));
     }
 }

@@ -3,6 +3,7 @@ package com.cs.kugou.db
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
+import java.io.Serializable
 
 /**
  *
@@ -62,6 +63,6 @@ data class Music(@PrimaryKey(autoincrement = true)
                  @Column
                  var isMV: Boolean? = false //是否有MV
 
-) {
+)  {
 
 }

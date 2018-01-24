@@ -3,12 +3,10 @@ package com.cs.kugou.mvp.view
 import android.support.v4.app.Fragment
 import android.view.View
 import android.widget.ImageView
-import android.widget.SeekBar
-import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBaseView
 import com.cs.kugou.R
 import com.cs.kugou.adapter.MainPagerAdapter
-import com.cs.kugou.audio.Audio
+import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.ui.ListenFragment
 import com.cs.kugou.ui.MainActivity
@@ -29,7 +27,6 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
     var fragmentList = arrayListOf<Fragment>()
 
     override fun init() {
-        initAudio()
 
         fragmentList.add(ListenFragment())
         fragmentList.add(ListenFragment())
@@ -47,30 +44,6 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
         activity.ivPause.setOnClickListener { presenter?.pause() }
     }
 
-    private fun initAudio() {
-        Audio.setOnStateChangedListener(object : Audio.OnStateChangedListener {
-            override fun onPrepared() {
-                activity.seekBar.max = Audio.getDuration()
-                activity.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    }
-
-                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    }
-
-                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        if (fromUser) {
-                            Audio.seekToPositon(progress)
-                        }
-                    }
-                })
-            }
-
-            override fun onProgressChanged(progress: Int) {
-                activity.seekBar.progress = progress
-            }
-        })
-    }
 
     override fun showPlay() {
         activity.ivPlay.visibility = View.VISIBLE
@@ -80,6 +53,16 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
     override fun showPause() {
         activity.ivPlay.visibility = View.GONE
         activity.ivPause.visibility = View.VISIBLE
+    }
+
+    override fun setProgress(progress: Int, max: Int) {
+        activity.seekBar.max = max
+        activity.seekBar.progress = progress
+    }
+
+    override fun shwoMusicInfo(music: Music) {
+        activity.tvMusicName.text = music.name
+        activity.tvName.text = music.artist
     }
 
     override fun showFragment(isShow: Boolean) {

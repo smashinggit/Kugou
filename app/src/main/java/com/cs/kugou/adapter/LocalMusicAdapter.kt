@@ -9,6 +9,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.cs.kugou.R
 import com.cs.kugou.db.Music
+import com.cs.kugou.module.MusicModule
+import com.cs.kugou.service.PlayerService
+import org.greenrobot.eventbus.EventBus
 
 /**
  *
@@ -25,6 +28,14 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
         holder?.tvArtist?.text = music.artist
         holder?.tvMusicName?.text = music.name
 
+        //点击列表时，播放点击的音乐，并将列表加入播放列表，保存到数据库
+        holder?.itemView?.setOnClickListener {
+            MusicModule.saveMusicToDB(list, MusicModule.PLAY)
+
+            var event = PlayerService.MusicEvent(PlayerService.ACTION_LOAD)
+            event.music = music
+            EventBus.getDefault().post(event)
+        }
     }
 
 
@@ -39,7 +50,5 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
         var ivAdd = itemView.findViewById<ImageView>(R.id.ivAdd)
         var tvMusicName = itemView.findViewById<TextView>(R.id.tvMusicName)
         var tvArtist = itemView.findViewById<TextView>(R.id.tvArtist)
-
-
     }
 }

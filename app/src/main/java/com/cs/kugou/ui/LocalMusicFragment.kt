@@ -19,17 +19,15 @@ import kotlinx.android.synthetic.main.title_common.*
 class LocalMusicFragment : BaseFragment() {
 
     override fun init() {
-        val localMusicList: ArrayList<Music>
 
         //没有扫描过歌曲
         if (!Caches.isScaned()) {
-            localMusicList = MusicUtils.getLocalMusic(context!!)//获取本地音乐列表
-            MusicModule.saveLocalMusic(localMusicList)//保存到数据库
-            MusicModule.loaclList = localMusicList
+            MusicModule.saveMusicToDB(MusicUtils.getLocalMusic(context!!), MusicModule.LOCAL)//保存到数据库
+            MusicModule.readMusicFromDB(MusicModule.LOCAL)
             Caches.scaned()
-        } else {
-            localMusicList = MusicModule.loaclList
         }
+
+        var localMusicList = MusicModule.localList
 
         if (localMusicList.isEmpty()) {
             showNoLocalMusic()
