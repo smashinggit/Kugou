@@ -78,7 +78,8 @@ object MusicModule {
                                 playList = mutableList as ArrayList<Music>
                                 Android.log("读取数据库播放列表，共${playList.size}条数据,耗时 ${System.currentTimeMillis() - temp} 毫秒 ")
 
-                                var event = PlayerService.MusicEvent(PlayerService.ACTION_READY)
+                                var event = PlayerService.MusicEvent()
+                                event.action = PlayerService.ACTION_READY
                                 EventBus.getDefault().post(event)
                             }
                 }

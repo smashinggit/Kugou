@@ -19,7 +19,6 @@ import kotlinx.android.synthetic.main.title_common.*
 class LocalMusicFragment : BaseFragment() {
 
     override fun init() {
-
         //没有扫描过歌曲
         if (!Caches.isScaned()) {
             MusicModule.saveMusicToDB(MusicUtils.getLocalMusic(context!!), MusicModule.LOCAL)//保存到数据库

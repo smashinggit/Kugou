@@ -27,9 +27,9 @@ interface MainContract {
     interface View : KView<Presenter, View> {
         fun showPlay()
         fun showPause()
-        fun shwoMusicInfo(music: Music)
+        fun shwoMusicInfo(music: Music?)
         fun showFragment(isShow: Boolean)
-        fun setProgress(progress: Int, max: Int)
+        fun setProgress(progress: Int)
     }
 
 

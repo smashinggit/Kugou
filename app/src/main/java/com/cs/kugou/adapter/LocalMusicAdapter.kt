@@ -31,8 +31,8 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
         //点击列表时，播放点击的音乐，并将列表加入播放列表，保存到数据库
         holder?.itemView?.setOnClickListener {
             MusicModule.saveMusicToDB(list, MusicModule.PLAY)
-
-            var event = PlayerService.MusicEvent(PlayerService.ACTION_LOAD)
+            var event = PlayerService.MusicEvent()
+            event.action = PlayerService.ACTION_LOAD_PLAY
             event.music = music
             EventBus.getDefault().post(event)
         }

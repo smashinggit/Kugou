@@ -2,11 +2,7 @@ package com.cs.kugou
 
 import android.app.Application
 import com.cs.framework.Android
-import com.cs.kugou.db.KgDataBase
-import com.raizlabs.android.dbflow.config.DatabaseConfig
-import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.kotlinextensions.database
 
 
 /**

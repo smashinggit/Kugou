@@ -29,13 +29,16 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         const val ACTION_NEXT = 2
         const val ACTION_READY = 3
         const val ACTION_LOAD = 4
+        const val ACTION_LOAD_PLAY = 5
+
+        const val STATE_PAUSE = 0  //暂停
+        const val STATE_PLAYING = 1 //播放中
+        const val STATE_PREPRAED = 2//就绪
+        const val STATE_LOADING = 3 //加载中
+        const val STATE_IDLE = 4 //空闲状态
+        var mCurrentState = STATE_IDLE
     }
 
-    val STATE_PAUSE = 0  //暂停
-    val STATE_PLAYING = 1 //播放中
-    val STATE_PREPRAED = 2//就绪
-    val STATE_LOADING = 3 //加载中
-    var mCurrentState = STATE_LOADING
 
     var mPlayList = arrayListOf<Music>()
     var mPlayer: MediaPlayer? = null
@@ -45,6 +48,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         override fun handleMessage(msg: Message?) {
             super.handleMessage(msg)
             if (mCurrentState == STATE_PLAYING) {
+                EventBus.getDefault().post(ProgressEvent(getPlayPosition()))//向Activity发送播放进度
                 sendEmptyMessageDelayed(0, 1000)
             }
         }
@@ -53,15 +57,17 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     @Subscribe()
     fun onMusicEvent(event: MusicEvent) {
         when (event.action) {
-            ACTION_PLAY -> {
-                play()
-            }
+            ACTION_PLAY -> play()
             ACTION_PAUSE -> pause()
             ACTION_NEXT -> next()
-            ACTION_READY -> {
-                mPlayList = MusicModule.playList
-            }
+            ACTION_READY -> mPlayList = MusicModule.playList //播放列表
             ACTION_LOAD -> {
+                mPlayingMusic = event.music
+                mPlayingMusic?.let {
+                    loadMusic(it, false)
+                }
+            }
+            ACTION_LOAD_PLAY -> {
                 mPlayingMusic = event.music
                 mPlayingMusic?.let {
                     loadMusic(it, true)
@@ -76,12 +82,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onCreate() {
         super.onCreate()
         EventBus.getDefault().register(this)
-        Caches.getLastPlaying()?.let {
-            mPlayingMusic = Gson().fromJson(it, Music::class.java)
-            mPlayingMusic?.let {
-                loadMusic(it, false)
-            }
-        }
+        Android.log("onCreate")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -89,15 +90,14 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     fun loadMusic(music: Music, isPlay: Boolean = false) {
+        mCurrentState = STATE_LOADING
         mHandler.removeMessages(0)
-
         mPlayer?.let {
             releasePlayer()
         }
         mPlayer = MediaPlayer()
         mPlayer?.reset()
         mPlayer?.setDataSource(this, Uri.parse(music.url))
-        //发送消息，更新ui
         mPlayer?.setOnErrorListener(this)
         mPlayer?.setOnCompletionListener(this)
         mPlayer?.prepareAsync()
@@ -107,7 +107,9 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             if (isPlay) {
                 mPlayer?.start()
                 mCurrentState = STATE_PLAYING
+                Android.log("播放音乐")
             }
+            Android.log("音乐加载完成")
         }
     }
 
@@ -117,6 +119,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             mCurrentState = STATE_PLAYING
             mPlayer?.start()
             mHandler.sendEmptyMessage(0)
+            Android.log("播放音乐")
         }
     }
 
@@ -125,11 +128,13 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             mCurrentState = STATE_PAUSE
             mPlayer?.pause()
             mHandler.removeMessages(0)
+            Android.log("暂停音乐")
         }
     }
 
 
     override fun onCompletion(mp: MediaPlayer?) {
+        mCurrentState = STATE_IDLE
         mPlayingMusic = null
     }
 
@@ -163,6 +168,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     override fun onDestroy() {
+        mCurrentState = STATE_IDLE
         EventBus.getDefault().unregister(this)
         Android.log("音频播放器销毁")
         releasePlayer()
@@ -173,9 +179,12 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         return null
     }
 
-    class MusicEvent(var action: Int) {
+    class MusicEvent() {
+        var action: Int = ACTION_LOAD
         var music: Music? = null
     }
+
+    class ProgressEvent(var progress: Int)
 
 
 }

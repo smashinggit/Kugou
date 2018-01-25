@@ -2,6 +2,8 @@ package com.cs.kugou.mvp.presenter
 
 import android.content.Context
 import android.support.v4.app.Fragment
+import android.widget.Toast
+import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.R
 import com.cs.kugou.module.MusicModule
@@ -9,6 +11,7 @@ import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.service.PlayerService
 import com.cs.kugou.ui.MainActivity
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 /**
  *
@@ -42,13 +45,22 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
 
 
     override fun play() {
-        sendMusicEvent(PlayerService.ACTION_PLAY)
-        ui?.showPause()
+        Android.log("play ${PlayerService.mCurrentState}")
+        //就绪状态和暂停状态可以播放
+        if (PlayerService.mCurrentState == PlayerService.STATE_PREPRAED || PlayerService.mCurrentState == PlayerService.STATE_PAUSE) {
+            sendMusicEvent(PlayerService.ACTION_PLAY)
+            ui?.showPause()
+        }else {
+            Toast.makeText(context, "请选择一首音乐", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun pause() {
-        sendMusicEvent(PlayerService.ACTION_PAUSE)
-        ui?.showPlay()
+        //播放状态可以暂停
+        if (PlayerService.mCurrentState == PlayerService.STATE_PLAYING) {
+            sendMusicEvent(PlayerService.ACTION_PAUSE)
+            ui?.showPlay()
+        }
     }
 
     override fun next() {
@@ -60,17 +72,32 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
     }
 
     override fun init() {
+        EventBus.getDefault().register(this)
     }
 
     override fun destory() {
+        EventBus.getDefault().unregister(this)
     }
 
+    //更新播放进度
+    @Subscribe()
+    fun onProgressEnvent(progressEvent: PlayerService.ProgressEvent) {
+        ui?.setProgress(progressEvent.progress)
+    }
+
+    //更新音乐信息
+    @Subscribe()
+    fun onMusicEvent(event: PlayerService.MusicEvent) {
+        Android.log("更新音乐信息")
+        ui?.shwoMusicInfo(event.music)
+    }
 
     /**
      * 向PlayerService发送指令，控制音乐
      */
     fun sendMusicEvent(action: Int) {
-        var event = PlayerService.MusicEvent(action)
+        var event = PlayerService.MusicEvent()
+        event.action = action
         EventBus.getDefault().post(event)
     }
 }

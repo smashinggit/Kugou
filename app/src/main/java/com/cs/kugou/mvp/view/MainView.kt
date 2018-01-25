@@ -3,6 +3,7 @@ package com.cs.kugou.mvp.view
 import android.support.v4.app.Fragment
 import android.view.View
 import android.widget.ImageView
+import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBaseView
 import com.cs.kugou.R
 import com.cs.kugou.adapter.MainPagerAdapter
@@ -14,6 +15,7 @@ import com.cs.kugou.view.MyTavView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom.*
 import kotlinx.android.synthetic.main.title.*
+import org.greenrobot.eventbus.EventBus
 
 /**
  *
@@ -23,11 +25,9 @@ import kotlinx.android.synthetic.main.title.*
  */
 class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, MainContract.View, MainActivity>(activity), MainContract.View {
 
-
     var fragmentList = arrayListOf<Fragment>()
 
     override fun init() {
-
         fragmentList.add(ListenFragment())
         fragmentList.add(ListenFragment())
         fragmentList.add(ListenFragment())
@@ -55,14 +55,18 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
         activity.ivPause.visibility = View.VISIBLE
     }
 
-    override fun setProgress(progress: Int, max: Int) {
-        activity.seekBar.max = max
+    override fun setProgress(progress: Int) {
         activity.seekBar.progress = progress
     }
 
-    override fun shwoMusicInfo(music: Music) {
-        activity.tvMusicName.text = music.name
-        activity.tvName.text = music.artist
+    override fun shwoMusicInfo(music: Music?) {
+        music?.let {
+            activity.tvMusicName.text = it.name
+            activity.tvName.text = it.artist
+            activity.seekBar.max = it.duration!!
+            Android.log("shwoMusicInfo ${it.name}")
+            Android.log("shwoMusicInfo ${ activity.tvName.text}")
+        }
     }
 
     override fun showFragment(isShow: Boolean) {
