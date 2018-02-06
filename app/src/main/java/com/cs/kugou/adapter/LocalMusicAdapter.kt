@@ -24,12 +24,12 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
     override fun onBindViewHolder(holder: MyHolder?, position: Int) {
 //        val music = list[position]
 //
-//        holder?.tvArtist?.text = music.artist
-//        holder?.tvMusicName?.text = music.name
+//        holder?.tvArtist?.text = music.singerName
+//        holder?.tvMusicName?.text = music.musicName
 //
 //        //播放点击的音乐，并将列表加入播放列表，保存到数据库
 //        holder?.itemView?.setOnClickListener {
-//            MusicModule.saveMusicToDB(list, MusicModule.PLAY)
+//         //   MusicModule.saveMusicToDB(list, MusicModule.PLAY)
 //            var event = PlayerService.MusicActionEvent()
 //            event.action = PlayerService.ACTION_LOAD_PLAY
 //            event.music = music

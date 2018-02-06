@@ -5,6 +5,7 @@ import com.cs.framework.base.BaseFragment
 import com.cs.kugou.R
 import com.cs.kugou.adapter.LocalMusicAdapter
 import com.cs.kugou.db.Music
+import com.cs.kugou.mvp.moudle.MusicMoudle
 import kotlinx.android.synthetic.main.fragment_local.*
 import kotlinx.android.synthetic.main.title_common.*
 
@@ -16,17 +17,15 @@ import kotlinx.android.synthetic.main.title_common.*
 class LocalMusicFragment : BaseFragment() {
 
     override fun init() {
+        var localList = MusicMoudle.localList
 
-//
-//        var localMusicList = MusicModule.localList
-//
-//        if (localMusicList.isEmpty()) {
-//            showNoLocalMusic()
-//            tvTitle.text = "本地音乐"
-//        } else {
-//            showLocalMusic(localMusicList)
-//            tvTitle.text = "本地音乐(${localMusicList.size})"
-//        }
+        if (localList.isEmpty()) {
+            showNoLocalMusic()
+            tvTitle.text = "本地音乐"
+        } else {
+            showLocalMusic(localList)
+            tvTitle.text = "本地音乐(${localList.size})"
+        }
 
         ivBack.setOnClickListener {
             (activity as MainActivity).mPresenter.popFragment()
@@ -38,11 +37,10 @@ class LocalMusicFragment : BaseFragment() {
     }
 
     fun showLocalMusic(localMusicList: ArrayList<Music>) {
-        var adapter = LocalMusicAdapter(context!!, localMusicList)
+        var adapter = LocalMusicAdapter(mContext, localMusicList)
         recyclerview.adapter = adapter
-        recyclerview.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        recyclerview.layoutManager = LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false)
     }
-
 
     override fun getLayoutId() = R.layout.fragment_local
 }

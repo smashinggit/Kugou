@@ -7,6 +7,7 @@ import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.R
 import com.cs.kugou.mvp.contract.MainContract
+import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.service.PlayerService
 import com.cs.kugou.ui.MainActivity
 import org.greenrobot.eventbus.EventBus
@@ -20,9 +21,8 @@ import org.greenrobot.eventbus.Subscribe
  */
 class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
 
-    override fun readDataFromDB() {
-
-
+    override fun getPlayList() {
+        MusicMoudle.getPlayList()
     }
 
     override fun popFragment() {
@@ -34,7 +34,7 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
                 .beginTransaction()
                 .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_right_in)
                 //  .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(R.id.flContent, fragment, tag)
+                .add(R.id.flContent, fragment, tag)
                 .addToBackStack(tag)
                 .commit()
     }
@@ -118,9 +118,9 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
 //        // mPlayList = MusicModule.playList //播放列表
 //    }
 
-    /**
-     * 向PlayerService发送指令，控制音乐
-     */
+            /**
+             * 向PlayerService发送指令，控制音乐
+             */
     fun sendMusicActionEvent(action: Int) {
         var event = PlayerService.MusicActionEvent()
         event.action = action

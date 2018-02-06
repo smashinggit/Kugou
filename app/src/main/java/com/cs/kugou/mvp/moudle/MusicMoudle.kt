@@ -1,4 +1,4 @@
-package com.cs.kugou.utils
+package com.cs.kugou.mvp.moudle
 
 import com.cs.framework.Android
 import com.cs.kugou.db.Music
@@ -6,17 +6,22 @@ import com.cs.kugou.db.Music_Table
 import com.raizlabs.android.dbflow.kotlinextensions.*
 
 /**
- *
- * author : ChenSen
- * data : 2018/2/6
- * desc:
+ * author :  chensen
+ * data  :  2018/2/6
+ * desc :
  */
-object DBUtils {
+object MusicMoudle {
+    var localList = ArrayList<Music>() //本地列表
+    var playList = ArrayList<Music>() //播放列表
+
+    fun getPlayList() {
+
+    }
 
 
     fun insert(music: Music) {
         music.async().save()
-        Android.log("插入一条数据")
+        Android.log("插入一条数据 ${music.hash}")
     }
 
     fun insert(list: ArrayList<Music>) {
@@ -36,7 +41,7 @@ object DBUtils {
     fun isExist(hash: String): Boolean {
 
         (select from Music::class
-                where (Music_Table.hash eq hash)
+                where (Music_Table.hash eq  hash)
                 ).queryList().let {
 
             if (it.size > 0) {
@@ -46,6 +51,5 @@ object DBUtils {
         }
         return false
     }
-
 
 }

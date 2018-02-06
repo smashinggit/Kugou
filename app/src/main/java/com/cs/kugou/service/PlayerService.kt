@@ -94,7 +94,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onCreate() {
         super.onCreate()
         EventBus.getDefault().register(this)
-        Android.log("onCreate")
+        Android.log("PlayerService  onCreate")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

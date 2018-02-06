@@ -30,7 +30,7 @@ class MainActivity : BaseActivity() {
         mView = MainView(this)
         mPresenter = MainPresenter(this)
         mPresenter.bind(mView)
-        mPresenter.readDataFromDB()
+        mPresenter.getPlayList()
 
         //如果有上次一播放的缓存，直接加载
 //        Caches.getLastPlaying()?.let {

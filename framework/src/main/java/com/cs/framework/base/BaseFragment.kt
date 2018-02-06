@@ -18,6 +18,7 @@ import com.cs.framework.Android
 abstract class BaseFragment : Fragment() {
 
     lateinit var mStateLayout: StateLayout
+    lateinit var mContext: Context
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         var view = inflater.inflate(getLayoutId(), null, false)
@@ -28,21 +29,26 @@ abstract class BaseFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        mContext = activity
         init()
     }
 
     fun showLoading() {
         mStateLayout.showLoadingView()
     }
+
     fun showEmpty() {
         mStateLayout.showEmptyView()
     }
+
     fun showError() {
         mStateLayout.showErrorView()
     }
+
     fun showNoNet() {
         mStateLayout.showNonetView()
     }
+
     fun showContent() {
         mStateLayout.showContentView()
     }

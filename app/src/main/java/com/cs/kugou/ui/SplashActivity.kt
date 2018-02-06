@@ -6,8 +6,8 @@ import android.os.Handler
 import com.cs.framework.base.BaseActivity
 import com.cs.kugou.R
 import com.cs.kugou.db.Music
+import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.utils.Caches
-import com.cs.kugou.utils.DBUtils
 import com.cs.kugou.utils.MediaUtils
 
 /**
@@ -38,13 +38,15 @@ class SplashActivity : BaseActivity() {
             }
 
             override fun filter(hash: String): Boolean {
-                return DBUtils.isExist(hash)
+                return MusicMoudle.isExist(hash)
             }
         })
 
         //保存到数据库
-        if (list.size > 0)
-            DBUtils.insert(list)
+        if (list.size > 0) {
+            MusicMoudle.insert(list)
+            MusicMoudle.localList = list
+        }
 
         Caches.setIsFirst(false)
 

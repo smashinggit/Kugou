@@ -1,11 +1,7 @@
 package com.cs.framework.base
 
-import android.annotation.SuppressLint
-import android.os.Handler
-import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.cs.framework.R
 
@@ -71,6 +67,4 @@ class StateLayout(var inflater: LayoutInflater, var contentView: View) {
     }
 
     fun rootView() = rootView
-
-
 }
