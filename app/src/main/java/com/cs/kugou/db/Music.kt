@@ -3,7 +3,6 @@ package com.cs.kugou.db
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
-import java.io.Serializable
 
 /**
  *
@@ -12,50 +11,33 @@ import java.io.Serializable
  * desc:
  */
 @Table(database = KgDataBase::class)
-data class Music(@PrimaryKey(autoincrement = true)
-                 var id: Int = 0,
+data class Music(@PrimaryKey(autoincrement = false)
+                 @Column
+                 var hash: String= "",
 
                  @Column
-                 var name: String? = null, //歌名
+                 var status: Int = 0,//状态：0 完成   1 下载中   2初始化中
 
                  @Column
-                 var artist: String? = null, //歌手
+                 var musicName: String="", //歌名
 
                  @Column
-                 var album: String? = null, //专辑
+                 var singerName: String="", //歌手
 
                  @Column
-                 var url: String? = null, //url
+                 var album: String="", //专辑
+
+                 @Column
+                 var url: String="", //url
 
                  @Column
                  var year: String? = null, //年份
 
                  @Column
-                 var duration: Int? = null, //时长
+                 var duration: Int=0, //时长
 
                  @Column
-                 var size: Long? = null, //大小
-
-                 @Column
-                 var isLocal: Boolean? = false, //是否在本地
-
-                 @Column
-                 var isLike: Boolean? = false, //是否喜欢
-
-                 @Column
-                 var isDownload: Boolean? = false, //是否已下载
-
-                 @Column
-                 var isRecent: Boolean? = false, //是否最近播放
-
-                 @Column
-                 var isPlay: Boolean? = false, //是否在播放列表
-
-                 @Column
-                 var isPlaying: Boolean? = false, //是否正在播放
-
-                 @Column
-                 var progress: Int? = 0, //当前播放进度
+                 var size: Long=0, //大小
 
                  @Column
                  var isFree: Boolean? = false, //是否免费下载

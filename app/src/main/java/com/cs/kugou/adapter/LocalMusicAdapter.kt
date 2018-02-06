@@ -9,7 +9,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.cs.kugou.R
 import com.cs.kugou.db.Music
-import com.cs.kugou.module.MusicModule
 import com.cs.kugou.service.PlayerService
 import org.greenrobot.eventbus.EventBus
 
@@ -23,19 +22,19 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
 
 
     override fun onBindViewHolder(holder: MyHolder?, position: Int) {
-        val music = list[position]
-
-        holder?.tvArtist?.text = music.artist
-        holder?.tvMusicName?.text = music.name
-
-        //点击列表时，播放点击的音乐，并将列表加入播放列表，保存到数据库
-        holder?.itemView?.setOnClickListener {
-            MusicModule.saveMusicToDB(list, MusicModule.PLAY)
-            var event = PlayerService.MusicEvent()
-            event.action = PlayerService.ACTION_LOAD_PLAY
-            event.music = music
-            EventBus.getDefault().post(event)
-        }
+//        val music = list[position]
+//
+//        holder?.tvArtist?.text = music.artist
+//        holder?.tvMusicName?.text = music.name
+//
+//        //播放点击的音乐，并将列表加入播放列表，保存到数据库
+//        holder?.itemView?.setOnClickListener {
+//            MusicModule.saveMusicToDB(list, MusicModule.PLAY)
+//            var event = PlayerService.MusicActionEvent()
+//            event.action = PlayerService.ACTION_LOAD_PLAY
+//            event.music = music
+//            EventBus.getDefault().post(event)
+//        }
     }
 
 

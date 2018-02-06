@@ -3,7 +3,7 @@ package com.cs.kugou.mvp.view
 import android.support.v4.app.Fragment
 import android.view.View
 import android.widget.ImageView
-import com.cs.framework.Android
+import android.widget.SeekBar
 import com.cs.framework.mvp.kt.KBaseView
 import com.cs.kugou.R
 import com.cs.kugou.adapter.MainPagerAdapter
@@ -11,7 +11,7 @@ import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.ui.ListenFragment
 import com.cs.kugou.ui.MainActivity
-import com.cs.kugou.view.MyTavView
+import com.cs.kugou.view.MyTabView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom.*
 import kotlinx.android.synthetic.main.title.*
@@ -24,6 +24,7 @@ import org.greenrobot.eventbus.EventBus
  * desc:
  */
 class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, MainContract.View, MainActivity>(activity), MainContract.View {
+
 
     var fragmentList = arrayListOf<Fragment>()
 
@@ -42,6 +43,18 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
             presenter?.play()
         }
         activity.ivPause.setOnClickListener { presenter?.pause() }
+
+        activity.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                EventBus.getDefault().post(SeekEvent(seekBar.progress))//向Service发送拖动进度
+            }
+        })
     }
 
 
@@ -59,14 +72,12 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
         activity.seekBar.progress = progress
     }
 
-    override fun shwoMusicInfo(music: Music?) {
-        music?.let {
-            activity.tvMusicName.text = it.name
-            activity.tvName.text = it.artist
-            activity.seekBar.max = it.duration!!
-            Android.log("shwoMusicInfo ${it.name}")
-            Android.log("shwoMusicInfo ${ activity.tvName.text}")
-        }
+    override fun updateMusicInfo(music: Music?) {
+//        music?.let {
+//            activity.tvMusicName.text = it.name
+//            activity.tvArtist.text = it.artist
+//            activity.seekBar.max = it.duration!!
+  //      }
     }
 
     override fun showFragment(isShow: Boolean) {
@@ -74,7 +85,7 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
     }
 
     fun getTabView(position: Int): View {
-        var tabview = MyTavView(activity)
+        var tabview = MyTabView(activity)
         val tabIcon = tabview.findViewById<ImageView>(R.id.tabIcon)
         when (position) {
             0 -> tabIcon.setImageResource(R.drawable.select_tab0)
@@ -86,4 +97,6 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
 
     override fun destory() {
     }
+
+    class SeekEvent(var position: Int)
 }

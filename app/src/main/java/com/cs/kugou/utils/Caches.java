@@ -29,18 +29,35 @@ public class Caches {
                 .getString(key, "");
     }
 
+    public static void saveBoolean(String key, Boolean value) {
+        PreferenceManager.getDefaultSharedPreferences(App.self)
+                .edit()
+                .putBoolean(key, value)
+                .apply();
+    }
+
+    public static boolean queryBoolean(String key) {
+        return PreferenceManager.getDefaultSharedPreferences(App.self)
+                .getBoolean(key, false);
+    }
+
+    public static boolean queryBoolean(String key, boolean defaultValue) {
+        return PreferenceManager.getDefaultSharedPreferences(App.self)
+                .getBoolean(key, defaultValue);
+    }
+
 
     //是否扫描本地歌曲
-    public static boolean isScaned() {
-        return Caches.query("scan").equals("true");
+    public static boolean isFirst() {
+        return queryBoolean("first", true);
     }
 
-    public static void scaned() {
-        Caches.save("scan", "true");
+    public static void setIsFirst(boolean isFirst) {
+        saveBoolean("first", isFirst);
     }
 
 
-    public static String  getLastPlaying() {
+    public static String getLastPlaying() {
         return Caches.query("lastPlaying");
     }
 

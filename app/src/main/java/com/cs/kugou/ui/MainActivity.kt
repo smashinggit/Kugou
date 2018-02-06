@@ -3,7 +3,6 @@ package com.cs.kugou.ui
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import com.cs.framework.Android
 import com.cs.framework.base.BaseActivity
 import com.cs.framework.mvp.kt.bind
 import com.cs.framework.mvp.kt.unbind
@@ -16,7 +15,6 @@ import com.cs.kugou.service.PlayerService
 import com.cs.kugou.utils.Caches
 import com.google.gson.Gson
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 class MainActivity : BaseActivity() {
 
@@ -35,17 +33,17 @@ class MainActivity : BaseActivity() {
         mPresenter.readDataFromDB()
 
         //如果有上次一播放的缓存，直接加载
-        Caches.getLastPlaying()?.let {
-            var mLastMusic = Gson().fromJson(it, Music::class.java)
-            mLastMusic?.let {
-                var event = PlayerService.MusicEvent()
-                event.action = PlayerService.ACTION_LOAD
-                event.music = it
-                //延迟发送，否则会因为service未加载完成而导致加载音乐信息失败
-                Handler().postDelayed({ EventBus.getDefault().post(event) },
-                        1500)
-            }
-        }
+//        Caches.getLastPlaying()?.let {
+//            var mLastMusic = Gson().fromJson(it, Music::class.java)
+//            mLastMusic?.let {
+//                var event = PlayerService.MusicActionEvent()
+//                event.action = PlayerService.ACTION_LOAD
+//                event.music = it
+//                //延迟发送，否则会因为service未加载完成而导致加载音乐信息失败
+//                Handler().postDelayed({ EventBus.getDefault().post(event) },
+//                        1500)
+//            }
+//        }
     }
 
 

@@ -16,7 +16,7 @@ object Android {
     public val DEV = true
 
     fun log(message: Any) {
-        if (DEV) Log.i("test", message.toString())
+        if (DEV) Log.i("mytest", message.toString())
     }
 
     fun log(tag: String, message: Any) {

@@ -23,7 +23,7 @@
             android:paddingTop="8dp">
 
             <ImageView
-                android:id="@+id/ivHead"
+                android:id="@+id/ivUserHead"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:src="@drawable/head"
@@ -31,7 +31,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tvName"
+                android:id="@+id/tvUserName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
@@ -39,8 +39,8 @@
                 android:drawableRight="@drawable/ic_level"
                 android:text="陈森"
                 android:textColor="@color/tvBlack"
-                app:layout_constraintLeft_toRightOf="@+id/ivHead"
-                app:layout_constraintTop_toTopOf="@id/ivHead" />
+                app:layout_constraintLeft_toRightOf="@+id/ivUserHead"
+                app:layout_constraintTop_toTopOf="@id/ivUserHead" />
 
             <TextView
                 android:id="@+id/tvLevel"
@@ -51,8 +51,8 @@
                 android:text=" LV.8 "
                 android:textColor="#D19B31"
                 android:textSize="8dp"
-                app:layout_constraintBottom_toBottomOf="@id/ivHead"
-                app:layout_constraintLeft_toRightOf="@+id/ivHead" />
+                app:layout_constraintBottom_toBottomOf="@id/ivUserHead"
+                app:layout_constraintLeft_toRightOf="@+id/ivUserHead" />
 
             <TextView
                 android:layout_width="wrap_content"

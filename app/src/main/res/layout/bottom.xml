@@ -42,7 +42,7 @@
                 app:layout_constraintTop_toBottomOf="@id/seekBar" />
 
             <TextView
-                android:id="@+id/tvName"
+                android:id="@+id/tvArtist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="18dp"
@@ -57,6 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="12dp"
+                android:visibility="gone"
                 android:src="@drawable/select_play"
                 app:layout_constraintRight_toLeftOf="@id/ivNext"
                 app:layout_constraintTop_toBottomOf="@id/seekBar" />

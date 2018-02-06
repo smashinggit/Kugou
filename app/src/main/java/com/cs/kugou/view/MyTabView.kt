@@ -8,7 +8,7 @@ import com.cs.kugou.R
 /**
  * Created by chensen on 2018/1/20.
  */
-class MyTavView : FrameLayout {
+class MyTabView : FrameLayout {
     constructor(context: Context) : super(context) {
         init(context)
     }

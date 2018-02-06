@@ -5,15 +5,18 @@ import android.database.Cursor
 import android.provider.MediaStore
 import com.cs.framework.Android
 import com.cs.kugou.db.Music
-
+import java.io.File
 
 /**
- * Created by chensen on 2018/1/21.
+ *
+ * author : ChenSen
+ * data : 2018/2/6
+ * desc:
  */
-object MusicUtils {
+object MediaUtils {
 
-    fun getLocalMusic(cotext: Context): ArrayList<Music> {
-        var musicList = arrayListOf<Music>()
+
+    fun scanLocalMusicByContentResolver(cotext: Context, listener: ForeachListener) {
         var cursor: Cursor? = null
         try {
             cursor = cotext.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null
@@ -30,22 +33,34 @@ object MusicUtils {
                     val duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))//歌曲的总播放时长
                     val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE))//歌曲文件的大小
 
+                    //获取歌曲文件的hash值
+                    var file = File(url)
+                    var hash = MD5Utils.getFileMD5(file)
+
+                    //此处判断是否过滤歌曲
+                    if (listener != null) {
+                        if (listener.filter(hash))
+                            continue
+                    }
+
                     if (checkIsMusic(duration, size)) {
 
                         val musicInfo = formatMusic(display_name)
-                        var artist = musicInfo?.get(0)
-                        var musicName = musicInfo?.get(1)
+                        var artist = musicInfo[0]//歌手名
+                        var musicName = musicInfo[1]//歌曲名
 
-                        var music = Music()
-                        music.name = musicName
-                        music.artist = artist
-                        music.url = url
-                        music.album = album
-                        music.duration = duration
-                        music.year = year
-                        music.size = size
+                        var music = Music(
+                                hash,
+                                0,
+                                musicName,
+                                artist,
+                                album,
+                                url,
+                                year,
+                                duration,
+                                size)
 
-                        musicList.add(music)
+                        listener?.foreach(music)
                         Android.log("本地音乐  " + music.toString())
                     }
                 }
@@ -58,8 +73,6 @@ object MusicUtils {
                 it.close()
             }
         }
-        Android.log("本地音乐数量 " + musicList.size)
-        return musicList
     }
 
     /**
@@ -83,7 +96,7 @@ object MusicUtils {
     /**
      * 格式化音乐文件名称,返回 歌手名 和 歌曲名
      */
-    fun formatMusic(name: String): Array<String>? {
+    fun formatMusic(name: String): Array<String> {
 
         val split = name.replace(" ", "")?.split(".")
         val info = split?.get(0)?.split("-")
@@ -98,5 +111,10 @@ object MusicUtils {
             return arrayOf("未知", "未知")
     }
 
+
+    interface ForeachListener {
+        fun foreach(music: Music)
+        fun filter(hash: String): Boolean
+    }
 
 }
