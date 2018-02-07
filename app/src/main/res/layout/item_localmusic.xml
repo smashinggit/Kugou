@@ -34,7 +34,7 @@
             android:textSize="16dp" />
 
         <TextView
-            android:id="@+id/tvArtist"
+            android:id="@+id/tvSingerName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="A-Lin"

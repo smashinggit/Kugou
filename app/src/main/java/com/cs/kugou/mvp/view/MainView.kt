@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment
 import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
+import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBaseView
 import com.cs.kugou.R
 import com.cs.kugou.adapter.MainPagerAdapter
@@ -39,9 +40,7 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
             activity.tablayout.getTabAt(i)?.customView = getTabView(i)
         }
 
-        activity.ivPlay.setOnClickListener {
-            presenter?.play()
-        }
+        activity.ivPlay.setOnClickListener { presenter?.play() }
         activity.ivPause.setOnClickListener { presenter?.pause() }
 
         activity.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -52,6 +51,7 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
+                Android.log("向Service发送拖动进度")
                 EventBus.getDefault().post(SeekEvent(seekBar.progress))//向Service发送拖动进度
             }
         })
@@ -77,7 +77,7 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
 //            activity.tvMusicName.text = it.name
 //            activity.tvArtist.text = it.artist
 //            activity.seekBar.max = it.duration!!
-  //      }
+        //      }
     }
 
     override fun showFragment(isShow: Boolean) {

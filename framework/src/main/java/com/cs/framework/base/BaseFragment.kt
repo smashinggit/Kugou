@@ -33,23 +33,23 @@ abstract class BaseFragment : Fragment() {
         init()
     }
 
-    fun showLoading() {
+    fun showLoadingView() {
         mStateLayout.showLoadingView()
     }
 
-    fun showEmpty() {
+    fun showEmptyView() {
         mStateLayout.showEmptyView()
     }
 
-    fun showError() {
+    fun showErrorView() {
         mStateLayout.showErrorView()
     }
 
-    fun showNoNet() {
+    fun showNonetView() {
         mStateLayout.showNonetView()
     }
 
-    fun showContent() {
+    fun showContentView() {
         mStateLayout.showContentView()
     }
 

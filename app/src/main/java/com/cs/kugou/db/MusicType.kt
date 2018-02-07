@@ -10,11 +10,10 @@ import com.raizlabs.android.dbflow.annotation.Table
  * desc: 关系表
  */
 @Table(database = KgDataBase::class)
-data class Music_Type(
+data class MusicType(
         @PrimaryKey
-        var hash: String = "",
+        var mHash: String = "",
 
         @PrimaryKey
         var tid: Int = 0
-) {
-}
+)

@@ -7,8 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.cs.framework.Android
 import com.cs.kugou.R
 import com.cs.kugou.db.Music
+import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.service.PlayerService
 import org.greenrobot.eventbus.EventBus
 
@@ -22,19 +24,20 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
 
 
     override fun onBindViewHolder(holder: MyHolder?, position: Int) {
-//        val music = list[position]
-//
-//        holder?.tvArtist?.text = music.singerName
-//        holder?.tvMusicName?.text = music.musicName
-//
-//        //播放点击的音乐，并将列表加入播放列表，保存到数据库
-//        holder?.itemView?.setOnClickListener {
-//         //   MusicModule.saveMusicToDB(list, MusicModule.PLAY)
+        val music = list[position]
+
+        holder?.tvSingerName?.text = music.singerName
+        holder?.tvMusicName?.text = music.musicName
+
+        //点击后的播放音乐，并该将列表加入播放列表，保存到数据库
+        holder?.itemView?.setOnClickListener {
+            MusicMoudle.savePlayListToDB(list)
+
 //            var event = PlayerService.MusicActionEvent()
 //            event.action = PlayerService.ACTION_LOAD_PLAY
 //            event.music = music
 //            EventBus.getDefault().post(event)
-//        }
+        }
     }
 
 
@@ -48,6 +51,6 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
     class MyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var ivAdd = itemView.findViewById<ImageView>(R.id.ivAdd)
         var tvMusicName = itemView.findViewById<TextView>(R.id.tvMusicName)
-        var tvArtist = itemView.findViewById<TextView>(R.id.tvArtist)
+        var tvSingerName = itemView.findViewById<TextView>(R.id.tvSingerName)
     }
 }

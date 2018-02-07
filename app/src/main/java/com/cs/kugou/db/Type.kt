@@ -10,12 +10,10 @@ import com.raizlabs.android.dbflow.annotation.Table
  * data : 2018/2/6
  * desc: 类型表
  *
- *  0|本地
- *  1|网络
- *  2|喜欢
- *  3|下载
- *  4|最近
- *  5|播放
+ *  0|喜欢
+ *  1|下载
+ *  2|最近
+ *  3|播放
  *
  */
 @Table(database = KgDataBase::class)
@@ -25,5 +23,12 @@ data class Type(
         var id: Int = 0,
 
         @Column
-        var name: String = "本地") {
+        var name: String = "喜欢") {
+
+    companion object {
+        const val LIKE = 0
+        const val DOWNLOAD = 1
+        const val RECENT = 2
+        const val PLAY = 3
+    }
 }

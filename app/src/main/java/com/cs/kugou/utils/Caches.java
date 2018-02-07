@@ -46,8 +46,25 @@ public class Caches {
                 .getBoolean(key, defaultValue);
     }
 
+    public static void saveInt(String key, int value) {
+        PreferenceManager.getDefaultSharedPreferences(App.self)
+                .edit()
+                .putInt(key, value)
+                .apply();
+    }
 
-    //是否扫描本地歌曲
+    public static int queryInt(String key) {
+        return PreferenceManager.getDefaultSharedPreferences(App.self)
+                .getInt(key, 0);
+    }
+
+    public static int queryInt(String key, int defaultValue) {
+        return PreferenceManager.getDefaultSharedPreferences(App.self)
+                .getInt(key, defaultValue);
+    }
+
+
+    //是否第一次启动
     public static boolean isFirst() {
         return queryBoolean("first", true);
     }

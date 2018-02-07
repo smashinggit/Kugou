@@ -38,7 +38,7 @@ class SplashActivity : BaseActivity() {
             }
 
             override fun filter(hash: String): Boolean {
-                return MusicMoudle.isExist(hash)
+                return MusicMoudle.isExistMusic(hash)
             }
         })
 
@@ -49,6 +49,7 @@ class SplashActivity : BaseActivity() {
         }
 
         Caches.setIsFirst(false)
+        Caches.save("localCount", "${list.size}")
 
         var def = System.currentTimeMillis() - temp
         if (def >= 2000) gotoHome(0) else gotoHome(2000 - def)

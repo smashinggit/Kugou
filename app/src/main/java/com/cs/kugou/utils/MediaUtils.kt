@@ -49,16 +49,17 @@ object MediaUtils {
                         var artist = musicInfo[0]//歌手名
                         var musicName = musicInfo[1]//歌曲名
 
-                        var music = Music(
-                                hash,
-                                0,
-                                musicName,
-                                artist,
-                                album,
-                                url,
-                                year,
-                                duration,
-                                size)
+                        var music = Music()
+                        music.hash = hash
+                        music.location = 0
+                        music.status = 0
+                        music.musicName = musicName
+                        music.singerName = artist
+                        music.album = album
+                        music.url = url
+                        music.year = year
+                        music.duration = duration
+                        music.size = size
 
                         listener?.foreach(music)
                         Android.log("本地音乐  " + music.toString())

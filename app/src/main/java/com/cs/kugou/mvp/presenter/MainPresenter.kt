@@ -1,11 +1,13 @@
 package com.cs.kugou.mvp.presenter
 
 import android.content.Context
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.widget.Toast
 import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.R
+import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.service.PlayerService
@@ -22,7 +24,17 @@ import org.greenrobot.eventbus.Subscribe
 class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
 
     override fun getPlayList() {
-        MusicMoudle.getPlayList()
+        MusicMoudle.getPlayList(object : MusicMoudle.onReadCompletedListener {
+            override fun onReadComplete(list: List<Music>) {
+                MusicMoudle.playList = list as ArrayList<Music>
+                //播放列表准备就绪
+                Handler().postDelayed({
+                    var event = PlayerService.MusicActionEvent()
+                    event.action = PlayerService.ACTION_READY
+                    EventBus.getDefault().post(event)
+                }, 500)
+            }
+        })
     }
 
     override fun popFragment() {

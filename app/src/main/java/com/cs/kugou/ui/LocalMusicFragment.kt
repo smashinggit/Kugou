@@ -6,6 +6,7 @@ import com.cs.kugou.R
 import com.cs.kugou.adapter.LocalMusicAdapter
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.moudle.MusicMoudle
+import com.cs.kugou.utils.Caches
 import kotlinx.android.synthetic.main.fragment_local.*
 import kotlinx.android.synthetic.main.title_common.*
 
@@ -17,14 +18,27 @@ import kotlinx.android.synthetic.main.title_common.*
 class LocalMusicFragment : BaseFragment() {
 
     override fun init() {
-        var localList = MusicMoudle.localList
 
-        if (localList.isEmpty()) {
-            showNoLocalMusic()
+        if (MusicMoudle.localList.isEmpty()) {
             tvTitle.text = "本地音乐"
+            showLoadingView()
+
+            MusicMoudle.getLoacalList(object : MusicMoudle.onReadCompletedListener {
+                override fun onReadComplete(list: List<Music>) {
+                    if (list.isEmpty())
+                        showEmptyView()
+                    else {
+                        showContentView()
+                        MusicMoudle.localList = list as ArrayList<Music>
+                        showLocalMusic(list)
+                        tvTitle.text = "本地音乐(${MusicMoudle.localList.size})"
+                        Caches.save("localCount", "${list.size}")
+                    }
+                }
+            })
         } else {
-            showLocalMusic(localList)
-            tvTitle.text = "本地音乐(${localList.size})"
+            showLocalMusic(MusicMoudle.localList)
+            tvTitle.text = "本地音乐(${MusicMoudle.localList.size})"
         }
 
         ivBack.setOnClickListener {
@@ -32,11 +46,8 @@ class LocalMusicFragment : BaseFragment() {
         }
     }
 
-    fun showNoLocalMusic() {
-        showEmpty()
-    }
 
-    fun showLocalMusic(localMusicList: ArrayList<Music>) {
+    private fun showLocalMusic(localMusicList: ArrayList<Music>) {
         var adapter = LocalMusicAdapter(mContext, localMusicList)
         recyclerview.adapter = adapter
         recyclerview.layoutManager = LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false)

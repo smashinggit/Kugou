@@ -31,19 +31,6 @@ class MainActivity : BaseActivity() {
         mPresenter = MainPresenter(this)
         mPresenter.bind(mView)
         mPresenter.getPlayList()
-
-        //如果有上次一播放的缓存，直接加载
-//        Caches.getLastPlaying()?.let {
-//            var mLastMusic = Gson().fromJson(it, Music::class.java)
-//            mLastMusic?.let {
-//                var event = PlayerService.MusicActionEvent()
-//                event.action = PlayerService.ACTION_LOAD
-//                event.music = it
-//                //延迟发送，否则会因为service未加载完成而导致加载音乐信息失败
-//                Handler().postDelayed({ EventBus.getDefault().post(event) },
-//                        1500)
-//            }
-//        }
     }
 
 
