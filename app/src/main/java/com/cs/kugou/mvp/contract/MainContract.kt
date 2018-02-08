@@ -30,6 +30,7 @@ interface MainContract {
         fun updateMusicInfo(music: Music?)
         fun showFragment(isShow: Boolean)
         fun setProgress(progress: Int)
+        fun hidePlay()
     }
 
 

@@ -2,8 +2,10 @@ package com.cs.kugou.mvp.moudle
 
 import com.cs.framework.Android
 import com.cs.kugou.db.*
+import com.cs.kugou.service.PlayerService
 import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.sql.language.*
+import org.greenrobot.eventbus.EventBus
 
 /**
  * author :  chensen
@@ -42,10 +44,10 @@ object MusicMoudle {
     }
 
     //更新播放列表
-    fun savePlayListToDB(list: ArrayList<Music>) {
+    fun savePlayListToDB(list: ArrayList<Music>,listener:onCompletedListener) {
 
-        clearPlayList(object : onDeletCompletedListener {
-            override fun onDeletComplete() {
+        clearPlayList(object : onCompletedListener {
+            override fun onComplete() {
 
                 //如果播放列表没有此音乐，则保存
                 list.filterNot { isExistType(it.hash, Type.PLAY) }
@@ -53,19 +55,22 @@ object MusicMoudle {
                 //如果数据库列表没有此音乐，则保存
                 list.filterNot { isExistMusic(it.hash) }
                         .forEach { insert(it) }
-                Android.log("保存播放列表 ${list.size}")
+                playList = list
+
+                listener.onComplete()
+                Android.log("数据库保存播放列表 ${list.size}")
             }
         })
     }
 
     //清空播放列表
-    private fun clearPlayList(listener: onDeletCompletedListener) {
+    private fun clearPlayList(listener: onCompletedListener) {
         //删除旧的播放列表
         SQLite.delete(MusicType::class.java)
                 .where(MusicType_Table.tid eq Type.PLAY)
                 .async() list { _, _ ->
             Android.log("清空播放列表")
-            listener.onDeletComplete()
+            listener.onComplete()
         }
     }
 
@@ -122,7 +127,7 @@ object MusicMoudle {
         fun onReadComplete(list: List<Music>)
     }
 
-    interface onDeletCompletedListener {
-        fun onDeletComplete()
+    interface onCompletedListener {
+        fun onComplete()
     }
 }

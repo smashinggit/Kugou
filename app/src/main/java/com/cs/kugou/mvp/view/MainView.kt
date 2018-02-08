@@ -42,6 +42,7 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
 
         activity.ivPlay.setOnClickListener { presenter?.play() }
         activity.ivPause.setOnClickListener { presenter?.pause() }
+        activity.ivNext.setOnClickListener { presenter?.next() }
 
         activity.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -61,11 +62,18 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
     override fun showPlay() {
         activity.ivPlay.visibility = View.VISIBLE
         activity.ivPause.visibility = View.GONE
+        Android.log("showPlay")
     }
 
     override fun showPause() {
         activity.ivPlay.visibility = View.GONE
         activity.ivPause.visibility = View.VISIBLE
+        Android.log("showPause")
+    }
+    override fun hidePlay() {
+        activity.ivPlay.visibility = View.GONE
+        activity.ivPause.visibility = View.GONE
+        Android.log("hidePlay")
     }
 
     override fun setProgress(progress: Int) {
@@ -73,11 +81,11 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
     }
 
     override fun updateMusicInfo(music: Music?) {
-//        music?.let {
-//            activity.tvMusicName.text = it.name
-//            activity.tvArtist.text = it.artist
-//            activity.seekBar.max = it.duration!!
-        //      }
+        music?.let {
+            activity.tvMusicName.text = it.musicName
+            activity.tvArtist.text = it.singerName
+            activity.seekBar.max = it.duration
+        }
     }
 
     override fun showFragment(isShow: Boolean) {

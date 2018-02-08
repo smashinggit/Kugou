@@ -24,7 +24,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/tvMusicName"
+            android:id="@+id/tvMusicNameItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="5dp"
@@ -34,7 +34,7 @@
             android:textSize="16dp" />
 
         <TextView
-            android:id="@+id/tvSingerName"
+            android:id="@+id/tvSingerNameItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="A-Lin"
