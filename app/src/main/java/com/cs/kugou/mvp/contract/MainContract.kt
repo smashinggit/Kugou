@@ -18,7 +18,6 @@ interface MainContract {
         fun play()
         fun pause()
         fun next()
-        fun pre()
         fun addFragment(fragment: Fragment, tag: String)
         fun popFragment()
         fun getPlayList()

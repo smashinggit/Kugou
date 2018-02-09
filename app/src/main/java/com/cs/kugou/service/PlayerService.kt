@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
 import android.os.Message
-import android.widget.Toast
 import com.cs.framework.Android
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.moudle.MusicMoudle
@@ -47,7 +46,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         var mPlayingIndex: Int = 0 //正在播放的音乐下标
     }
 
-    var isCompleted = false  //是否播放完成
 
     var mPlayer: MediaPlayer? = null
     var mHandler = @SuppressLint("HandlerLeak")
@@ -108,7 +106,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     //加载音乐
     private fun loadMusic(music: Music, isPlay: Boolean = false) {
         var temp = System.currentTimeMillis()
-        isCompleted = false
         mCurrentState = STATE_LOADING
         mHandler.removeMessages(0)
         sendStateChangeEvent(mCurrentState) //更新播放状态
@@ -124,7 +121,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         mPlayer?.setOnPreparedListener {
             mCurrentState = STATE_PREPRAED
             sendStateChangeEvent(mCurrentState) //更新播放状态
-            Caches.saveLastPlaying(music)
             if (isPlay) {
                 //两首音乐播放间隔为500毫秒
                 var time = System.currentTimeMillis() - temp
@@ -134,6 +130,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                     playMusic()
                 }
             }
+            Caches.saveInt("playingIndex", mPlayingIndex)
             Android.log("音乐加载完成")
         }
     }
@@ -170,24 +167,27 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     private fun next() {
         if (!mPlayList.isEmpty()) {
 
-            if (mCurrentMode == MODE_RANDOM) {
+            when (mCurrentMode) {
 
-            } else {
-                if (mPlayingIndex < (mPlayList.size - 1)) {
-                    if (isCompleted)
-                        loadMusic(mPlayList[mPlayingIndex], true)
-                    else
-                        mPlayingIndex++
-                } else {
-                    mPlayingIndex = 0
+                MODE_RANDOM -> {
                 }
-            }
-
-            if ((mPlayingIndex == 0 && mCurrentMode == MODE_SEQUENCE) && !isCompleted) {//播放完成
-                playComplete()
-            } else {                                                  //播放下一首
-                loadMusic(mPlayList[mPlayingIndex], true)
-                Caches.saveInt("playingIndex", mPlayingIndex)
+                MODE_LOOP -> {
+                    if (mPlayingIndex < (mPlayList.size - 1)) {
+                        mPlayingIndex++
+                    } else {
+                        mPlayingIndex = 0
+                    }
+                    loadMusic(mPlayList[mPlayingIndex], true)
+                }
+                MODE_SEQUENCE -> {
+                    if (mPlayingIndex == (mPlayList.size - 1)) {
+                        mPlayingIndex = -1
+                        playComplete()
+                    } else {
+                        mPlayingIndex++
+                        loadMusic(mPlayList[mPlayingIndex], true)
+                    }
+                }
             }
         }
     }
@@ -198,7 +198,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         releasePlayer()
         sendStateChangeEvent(mCurrentState) //更新播放状态
         Caches.saveInt("playingIndex", 0)
-        isCompleted = true
     }
 
     //播放完成的回调

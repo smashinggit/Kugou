@@ -62,18 +62,15 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
     override fun showPlay() {
         activity.ivPlay.visibility = View.VISIBLE
         activity.ivPause.visibility = View.GONE
-        Android.log("showPlay")
     }
 
     override fun showPause() {
         activity.ivPlay.visibility = View.GONE
         activity.ivPause.visibility = View.VISIBLE
-        Android.log("showPause")
     }
     override fun hidePlay() {
         activity.ivPlay.visibility = View.GONE
         activity.ivPause.visibility = View.GONE
-        Android.log("hidePlay")
     }
 
     override fun setProgress(progress: Int) {

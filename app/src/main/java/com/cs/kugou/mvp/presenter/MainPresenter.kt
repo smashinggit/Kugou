@@ -75,10 +75,6 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
             sendMusicActionEvent(PlayerService.ACTION_NEXT)
         }
     }
-
-    override fun pre() {
-    }
-
     override fun init() {
         EventBus.getDefault().register(this)
     }
@@ -123,15 +119,9 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
         }
     }
 
-    //读取数据库完毕
-    @Subscribe
-//    fun onReadFromDBExevt(event: MusicModule.ReadFromDBExevt) {
-//        // mPlayList = MusicModule.playList //播放列表
-//    }
-
-            /**
-             * 向PlayerService发送指令，控制音乐
-             */
+    /**
+     * 向PlayerService发送指令，控制音乐
+     */
     fun sendMusicActionEvent(action: Int) {
         var event = PlayerService.MusicActionEvent()
         event.action = action
