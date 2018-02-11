@@ -41,6 +41,7 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
 
     override fun popFragment() {
         (context as MainActivity).supportFragmentManager.popBackStack()
+        (context as MainActivity).topCount--
     }
 
     override fun addFragment(fragment: Fragment, tag: String) {
@@ -51,6 +52,9 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
                 .add(R.id.flContent, fragment, tag)
                 .addToBackStack(tag)
                 .commit()
+
+        (context as MainActivity).topCount++
+
     }
 
 
@@ -75,6 +79,7 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
             sendMusicActionEvent(PlayerService.ACTION_NEXT)
         }
     }
+
     override fun init() {
         EventBus.getDefault().register(this)
     }

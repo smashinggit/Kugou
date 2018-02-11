@@ -1,6 +1,7 @@
 package com.cs.kugou.ui
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import com.cs.framework.base.BaseActivity
@@ -20,11 +21,19 @@ class MainActivity : BaseActivity() {
 
     lateinit var mPresenter: MainContract.Presenter
     lateinit var mView: MainView
+    var topCount = 0    //用于标识MainActivity上Fragemnt的数量
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         var intent = Intent(this, PlayerService::class.java)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(intent)
+//        } else {
+//            startService(intent)
+//        }
+
         startService(intent)
 
         mView = MainView(this)
@@ -33,11 +42,18 @@ class MainActivity : BaseActivity() {
         mPresenter.getPlayList()
     }
 
-
     override fun onBackPressed() {
-        super.onBackPressed()
-    }
 
+        if (topCount == 0) {     // 跳转到桌面
+            val intent = Intent(Intent.ACTION_MAIN)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.addCategory(Intent.CATEGORY_HOME)
+            startActivity(intent)
+        } else {
+            mPresenter.popFragment()
+        }
+
+    }
 
     override fun onDestroy() {
         mPresenter.unbind()

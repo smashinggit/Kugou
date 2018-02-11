@@ -66,8 +66,8 @@
 
             <ImageView
                 android:id="@+id/ivRecord"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_marginRight="15dp"
                 android:background="@drawable/select_ic_record"
                 app:layout_constraintBottom_toBottomOf="parent"

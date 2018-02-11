@@ -1,17 +1,29 @@
 package com.cs.kugou.service
 
 import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
 import android.os.Message
+import android.support.v4.app.NotificationCompat
+import android.view.View
+import android.widget.Filter
+import android.widget.RemoteViews
 import com.cs.framework.Android
+import com.cs.kugou.R
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.mvp.view.MainView
+import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.utils.Caches
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -23,7 +35,16 @@ import org.greenrobot.eventbus.Subscribe
  * desc:播放音乐的service
  */
 class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
+
     companion object {
+        const val FOREGROUND_ID = 10
+        const val REQUEST_ID = 1
+
+        const val REMOTEVIEW_PLAY = "play"
+        const val REMOTEVIEW_PAUSE = "pause"
+        const val REMOTEVIEW_NEXT = "next"
+        const val REMOTEVIEW_LYRIC = "lyric"
+
         const val ACTION_PLAY = 0       //播放
         const val ACTION_PAUSE = 1      //暂停
         const val ACTION_NEXT = 2       //下一首
@@ -46,7 +67,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         var mPlayingIndex: Int = 0 //正在播放的音乐下标
     }
 
-
+    var receiver = RemoteViewReceiver()  //此广播用于接收通知栏的操作信息
     var mPlayer: MediaPlayer? = null
     var mHandler = @SuppressLint("HandlerLeak")
     object : Handler() {
@@ -84,6 +105,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     private fun update(event: MusicActionEvent) {
         mPlayList = MusicMoudle.playList
         mPlayingIndex = event.position
+        startForeground(FOREGROUND_ID, getNotification(0, mPlayList[mPlayingIndex]))
         Caches.saveInt("playingIndex", mPlayingIndex)
     }
 
@@ -96,11 +118,64 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onCreate() {
         super.onCreate()
         EventBus.getDefault().register(this)
+
+        var filter = IntentFilter()
+        filter.addAction(REMOTEVIEW_PLAY)
+        filter.addAction(REMOTEVIEW_PAUSE)
+        filter.addAction(REMOTEVIEW_NEXT)
+        filter.addAction(REMOTEVIEW_LYRIC)
+        registerReceiver(receiver, filter)
+
         Android.log("PlayerService  onCreate")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Android.log("service 构建前台服务")
+        startForeground(FOREGROUND_ID, getNotification(0, null))
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun getNotification(flag: Int, music: Music?): Notification {
+        var remoteView = RemoteViews(packageName, R.layout.layout_notification)
+
+        music?.let {
+            remoteView.setTextViewText(R.id.tvSingerNameRemote, music.singerName)
+            remoteView.setTextViewText(R.id.tvSongNameRemote, music.musicName)
+        }
+
+        var intentPlay = Intent(REMOTEVIEW_PLAY)
+        var penddingIntentPlay = PendingIntent.getBroadcast(this, REQUEST_ID, intentPlay, PendingIntent.FLAG_UPDATE_CURRENT)
+        remoteView.setOnClickPendingIntent(R.id.ivPlayRemote, penddingIntentPlay)
+
+        var intentPause = Intent(REMOTEVIEW_PAUSE)
+        var penddingIntentPause = PendingIntent.getBroadcast(this, REQUEST_ID, intentPause, PendingIntent.FLAG_UPDATE_CURRENT)
+        remoteView.setOnClickPendingIntent(R.id.ivPauseRemote, penddingIntentPause)
+
+        var intentNext = Intent(REMOTEVIEW_NEXT)
+        var penddingIntentNext = PendingIntent.getBroadcast(this, REQUEST_ID, intentNext, PendingIntent.FLAG_UPDATE_CURRENT)
+        remoteView.setOnClickPendingIntent(R.id.ivNextRemote, penddingIntentNext)
+
+        var intentLyric = Intent(REMOTEVIEW_LYRIC)
+        var penddingIntentLyric = PendingIntent.getBroadcast(this, REQUEST_ID, intentLyric, PendingIntent.FLAG_UPDATE_CURRENT)
+        remoteView.setOnClickPendingIntent(R.id.ivLyricRemote, penddingIntentLyric)
+
+        if (flag == 0) {
+            remoteView.setViewVisibility(R.id.ivPlayRemote, View.VISIBLE)
+            remoteView.setViewVisibility(R.id.ivPauseRemote, View.GONE)
+        } else {
+            remoteView.setViewVisibility(R.id.ivPlayRemote, View.GONE)
+            remoteView.setViewVisibility(R.id.ivPauseRemote, View.VISIBLE)
+        }
+
+        var intentMain = Intent(this, MainActivity::class.java)
+        var penddingIntentMain = PendingIntent.getActivity(this, 1, intentMain, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        var builder = NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("酷狗音乐")
+                .setContentIntent(penddingIntentMain)
+                .setContent(remoteView)
+        return builder.build()
     }
 
     //加载音乐
@@ -148,6 +223,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (mCurrentState == STATE_PREPRAED || mCurrentState == STATE_PAUSE) {
             mCurrentState = STATE_PLAYING
             sendStateChangeEvent(mCurrentState) //更新播放状态
+            startForeground(FOREGROUND_ID, getNotification(1, mPlayList[mPlayingIndex]))//更新通知栏
             mPlayer?.start()
             mHandler.sendEmptyMessage(0)
             Android.log("播放音乐")
@@ -158,6 +234,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (mCurrentState == STATE_PLAYING) {
             mCurrentState = STATE_PAUSE
             sendStateChangeEvent(mCurrentState) //更新播放状态
+            startForeground(FOREGROUND_ID, getNotification(0, mPlayList[mPlayingIndex]))//更新通知栏
             mPlayer?.pause()
             mHandler.removeMessages(0)
             Android.log("暂停音乐")
@@ -166,9 +243,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private fun next() {
         if (!mPlayList.isEmpty()) {
-
             when (mCurrentMode) {
-
                 MODE_RANDOM -> {
                 }
                 MODE_LOOP -> {
@@ -189,6 +264,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                     }
                 }
             }
+            startForeground(FOREGROUND_ID, getNotification(1, mPlayList[mPlayingIndex]))//更新通知栏
         }
     }
 
@@ -238,6 +314,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         EventBus.getDefault().unregister(this)
         Android.log("音频播放器销毁")
         releasePlayer()
+        stopForeground(true)
+        unregisterReceiver(receiver)
         super.onDestroy()
     }
 
@@ -259,4 +337,26 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     class PlayingInfoEvent(var music: Music?, var progress: Int = 0)//播放信息
 
     class StateChangeEvent(var state: Int)//播放状态改变事件
+
+    inner class RemoteViewReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.let {
+                when (it.action) {
+                    REMOTEVIEW_PLAY -> {
+                        play()
+                    }
+                    REMOTEVIEW_PAUSE -> {
+                        pause()
+                    }
+                    REMOTEVIEW_NEXT -> {
+                        next()
+                    }
+                    REMOTEVIEW_LYRIC -> {
+                        Android.log("REMOTEVIEW_LYRIC")
+                    }
+                }
+            }
+        }
+
+    }
 }
