@@ -15,6 +15,9 @@ import org.greenrobot.eventbus.EventBus
 object MusicMoudle {
     var localList = ArrayList<Music>() //本地列表
     var playList = ArrayList<Music>() //播放列表
+    var likeList = ArrayList<Music>() //播放列表
+    var downloadList = ArrayList<Music>() //播放列表
+    var recentList = ArrayList<Music>() //播放列表
 
     //读取本地列表
     fun getLoacalList(listener: onReadCompletedListener) {
@@ -43,8 +46,46 @@ object MusicMoudle {
         }
     }
 
+    //读取喜欢列表
+    fun getLikeList(listener: onReadCompletedListener) {
+        SQLite.select(Music::class.allProperty())
+                .from(Music::class.java)
+                .join(MusicType::class.java, Join.JoinType.INNER)
+                .on((MusicType_Table.tid eq Type.LIKE)
+                        and (MusicType_Table.mHash eq Music_Table.hash))
+                .async() list { _, list ->
+            listener.onReadComplete(list)
+            Android.log("查询喜欢列表- ${list.size}")
+        }
+    }
+    //读取下载列表
+    fun getDownLoadList(listener: onReadCompletedListener) {
+        SQLite.select(Music::class.allProperty())
+                .from(Music::class.java)
+                .join(MusicType::class.java, Join.JoinType.INNER)
+                .on((MusicType_Table.tid eq Type.DOWNLOAD)
+                        and (MusicType_Table.mHash eq Music_Table.hash))
+                .async() list { _, list ->
+            listener.onReadComplete(list)
+            Android.log("查询下载列表- ${list.size}")
+        }
+    }
+    //读取最近列表
+    fun getRecentyList(listener: onReadCompletedListener) {
+        SQLite.select(Music::class.allProperty())
+                .from(Music::class.java)
+                .join(MusicType::class.java, Join.JoinType.INNER)
+                .on((MusicType_Table.tid eq Type.RECENT)
+                        and (MusicType_Table.mHash eq Music_Table.hash))
+                .async() list { _, list ->
+            listener.onReadComplete(list)
+            Android.log("查询最近列表- ${list.size}")
+        }
+    }
+
+
     //更新播放列表
-    fun savePlayListToDB(list: ArrayList<Music>,listener:onCompletedListener) {
+    fun savePlayListToDB(list: ArrayList<Music>, listener: onCompletedListener) {
 
         clearPlayList(object : onCompletedListener {
             override fun onComplete() {

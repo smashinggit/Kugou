@@ -33,6 +33,10 @@ abstract class BaseFragment : Fragment() {
         init()
     }
 
+    fun setTitleView(title: View) {
+        mStateLayout.setTitleView(title)
+    }
+
     fun showLoadingView() {
         mStateLayout.showLoadingView()
     }

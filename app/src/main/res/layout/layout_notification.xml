@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="60dp"
+    android:orientation="horizontal"
+    app:layout_constraintTop_toBottomOf="@+id/ivLogo">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/ivLogo">
+    <ImageView
+        android:id="@+id/ivCorverRemote"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@mipmap/ic_launcher" />
 
-        <ImageView
-            android:id="@+id/ivCorverRemote"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@mipmap/ic_launcher" />
-
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/ivCorverRemote"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvSongNameRemote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="4dp"
-            android:layout_toRightOf="@+id/ivCorverRemote"
+            android:layout_marginTop="5dp"
             android:text="酷狗音乐"
             android:textColor="@color/tvBlack"
             android:textSize="16dp" />
@@ -33,55 +33,50 @@
             android:id="@+id/tvSingerNameRemote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvSongNameRemote"
             android:layout_marginBottom="4dp"
             android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@+id/ivCorverRemote"
+            android:layout_marginTop="5dp"
             android:text="就是歌多"
             android:textColor="@color/tvColor" />
+    </LinearLayout>
 
-        <ImageView
-            android:id="@+id/ivPlayRemote"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@+id/ivNextRemote"
-            android:src="@drawable/select_play" />
-
-
-        <ImageView
-            android:id="@+id/ivPauseRemote"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@+id/ivNextRemote"
-            android:src="@drawable/select_pause"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/ivNextRemote"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@+id/ivLyricRemote"
-            android:src="@drawable/select_next" />
-
-        <ImageView
-            android:id="@+id/ivLyricRemote"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="40dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/ivPlayRemote"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/ivNextRemote"
+        android:src="@drawable/select_play_notification" />
 
 
-    </RelativeLayout>
+    <ImageView
+        android:id="@+id/ivPauseRemote"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/ivNextRemote"
+        android:src="@drawable/select_pause_notification"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/ivNextRemote"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/ivLyricRemote"
+        android:src="@drawable/select_next_notification" />
+
+    <ImageView
+        android:id="@+id/ivLyricRemote"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
-</LinearLayout>
+</RelativeLayout>
+

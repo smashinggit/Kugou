@@ -1,16 +1,12 @@
-package com.cs.kugou.ui
+package com.cs.kugou.ui.listen
 
 import android.annotation.SuppressLint
-import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.cs.framework.Android
 import com.cs.framework.base.BaseFragment
 import com.cs.kugou.R
 import com.cs.kugou.adapter.MusicClassifyAdapter
+import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.utils.Caches
 import kotlinx.android.synthetic.main.fragment_listen.*
 
@@ -19,7 +15,7 @@ import kotlinx.android.synthetic.main.fragment_listen.*
  *
  * author : ChenSen
  * data : 2018/1/19
- * desc:
+ * desc: 听 页面
  */
 @SuppressLint("ValidFragment")
 class ListenFragment : BaseFragment() {
@@ -35,14 +31,12 @@ class ListenFragment : BaseFragment() {
         tvDownNum.text = if (Caches.query("downCount").isEmpty()) "0" else Caches.query("downCount")
         tvRecentNum.text = if (Caches.query("recentCount").isEmpty()) "0" else Caches.query("recentCount")
 
-        Android.log("ListenFragment  init()")
+        llLoacl.setOnClickListener { (activity as MainActivity).mPresenter.addFragment(LocalFragment(), "LocalMusicFragment") }
+        llLike.setOnClickListener { (activity as MainActivity).mPresenter.addFragment(LikeFragment(), "LikeMusicFragment") }
+        llDownLoad.setOnClickListener { (activity as MainActivity).mPresenter.addFragment(DownLoadFragment(), "DownLoadFragment") }
+        llRecent.setOnClickListener { (activity as MainActivity).mPresenter.addFragment(RecentFragment(), "RecentFragment") }
 
-        llLoacl.setOnClickListener {
-            (activity as MainActivity).mPresenter.addFragment(LocalMusicFragment(), "LocalMusicFragment")
-        }
-        llLike.setOnClickListener { }
-        llDownLoad.setOnClickListener { }
-        llRecent.setOnClickListener { }
+        Android.log("ListenFragment  init()")
     }
 
 }

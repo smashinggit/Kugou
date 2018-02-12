@@ -10,7 +10,7 @@ import com.cs.kugou.R
 import com.cs.kugou.adapter.MainPagerAdapter
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.contract.MainContract
-import com.cs.kugou.ui.ListenFragment
+import com.cs.kugou.ui.listen.ListenFragment
 import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.view.MyTabView
 import kotlinx.android.synthetic.main.activity_main.*

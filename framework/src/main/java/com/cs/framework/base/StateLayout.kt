@@ -2,7 +2,9 @@ package com.cs.framework.base
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import com.cs.framework.R
 
 /**
@@ -12,7 +14,9 @@ import com.cs.framework.R
  * desc:
  */
 class StateLayout(var inflater: LayoutInflater, var contentView: View) {
-    private var rootView: FrameLayout = inflater.inflate(R.layout.layout_root, null, false) as FrameLayout
+    private var rootView: LinearLayout = inflater.inflate(R.layout.layout_root, null, false) as LinearLayout
+    private var titleView = rootView.findViewById<FrameLayout>(R.id.flTitle)
+    private var flState = rootView.findViewById<FrameLayout>(R.id.flState)
 
     private var loading: View
     private var empty: View
@@ -21,14 +25,19 @@ class StateLayout(var inflater: LayoutInflater, var contentView: View) {
 
     init {
         contentView.visibility = View.GONE
-        rootView.addView(contentView)
+        flState.addView(contentView)
 
-        loading = rootView.getChildAt(0)
-        empty = rootView.getChildAt(1)
-        error = rootView.getChildAt(2)
-        nonet = rootView.getChildAt(3)
+        loading = flState.getChildAt(0)
+        empty = flState.getChildAt(1)
+        error = flState.getChildAt(2)
+        nonet = flState.getChildAt(3)
     }
 
+
+    fun setTitleView(title: View) {
+        titleView.removeAllViews()
+        titleView.addView(title)
+    }
 
     fun showLoadingView() {
         showView(0)

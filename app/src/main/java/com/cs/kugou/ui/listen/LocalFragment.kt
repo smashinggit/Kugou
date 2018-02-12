@@ -1,11 +1,13 @@
-package com.cs.kugou.ui
+package com.cs.kugou.ui.listen
 
 import android.support.v7.widget.LinearLayoutManager
+import android.view.LayoutInflater
 import com.cs.framework.base.BaseFragment
 import com.cs.kugou.R
 import com.cs.kugou.adapter.LocalMusicAdapter
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.moudle.MusicMoudle
+import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.utils.Caches
 import kotlinx.android.synthetic.main.fragment_local.*
 import kotlinx.android.synthetic.main.title_common.*
@@ -15,9 +17,11 @@ import kotlinx.android.synthetic.main.title_common.*
  * data  :  2018/1/21
  * desc :本地音乐
  */
-class LocalMusicFragment : BaseFragment() {
+class LocalFragment : BaseFragment() {
 
     override fun init() {
+        var titleView = LayoutInflater.from(mContext).inflate(R.layout.title_common, null, false)
+        setTitleView(titleView)
 
         if (MusicMoudle.localList.isEmpty()) {
             tvTitle.text = "本地音乐"
