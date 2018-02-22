@@ -29,14 +29,12 @@ class LocalMusicAdapter(var context: Context, var list: ArrayList<Music>) : Recy
 
         //点击后播放音乐，并该将列表加入播放列表，保存到数据库
         holder?.itemView?.setOnClickListener {
-            MusicMoudle.savePlayListToDB(list, object : MusicMoudle.onCompletedListener {
-                override fun onComplete() {
-                    var event = PlayerService.MusicActionEvent()
-                    event.action = PlayerService.ACTION_LOAD_PLAY
-                    event.position = position
-                    EventBus.getDefault().post(event)
-                }
-            })
+            MusicMoudle.savePlayListToDB(list) {
+                var event = PlayerService.MusicActionEvent()
+                event.action = PlayerService.ACTION_LOAD_PLAY
+                event.position = position
+                EventBus.getDefault().post(event)
+            }
         }
     }
 

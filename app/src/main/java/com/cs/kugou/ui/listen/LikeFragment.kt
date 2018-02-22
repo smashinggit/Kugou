@@ -25,18 +25,16 @@ class LikeFragment : BaseFragment() {
         tvTitle.text = "喜欢·歌单"
         showLoadingView()
 
-        MusicMoudle.getLikeList(object : MusicMoudle.onReadCompletedListener {
-            override fun onReadComplete(list: List<Music>) {
-                if (list.isEmpty())
-                    showEmptyView()
-                else {
-                    showContentView()
-                    MusicMoudle.likeList = list as ArrayList<Music>
-                    showLikeMusic(list)
-                    Caches.save("likeCount", "${list.size}")
-                }
+        MusicMoudle.getLikeList {
+            if (it.isEmpty())
+                showEmptyView()
+            else {
+                showContentView()
+                MusicMoudle.likeList = it as ArrayList<Music>
+                showLikeMusic(it)
+                Caches.save("likeCount", "${it.size}")
             }
-        })
+        }
 
         ivBack.setOnClickListener {
             (activity as MainActivity).mPresenter.popFragment()

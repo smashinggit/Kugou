@@ -2,13 +2,16 @@ package com.cs.kugou.ui.listen
 
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
+import com.cs.framework.Android
 import com.cs.framework.base.BaseFragment
+import com.cs.kugou.App
 import com.cs.kugou.R
 import com.cs.kugou.adapter.LocalMusicAdapter
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.utils.Caches
+import com.cs.kugou.utils.MediaUtils
 import kotlinx.android.synthetic.main.fragment_local.*
 import kotlinx.android.synthetic.main.title_common.*
 
@@ -23,26 +26,29 @@ class LocalFragment : BaseFragment() {
         var titleView = LayoutInflater.from(mContext).inflate(R.layout.title_common, null, false)
         setTitleView(titleView)
 
-        if (MusicMoudle.localList.isEmpty()) {
+        if (App.isFirstSacanLocal) {
             tvTitle.text = "本地音乐"
             showLoadingView()
 
-            MusicMoudle.getLoacalList(object : MusicMoudle.onReadCompletedListener {
-                override fun onReadComplete(list: List<Music>) {
-                    if (list.isEmpty())
-                        showEmptyView()
-                    else {
-                        showContentView()
-                        MusicMoudle.localList = list as ArrayList<Music>
-                        showLocalMusic(list)
-                        tvTitle.text = "本地音乐(${MusicMoudle.localList.size})"
-                        Caches.save("localCount", "${list.size}")
-                    }
+            MusicMoudle.getLoacalList {
+                if (it.isEmpty())
+                    showEmptyView()
+                else {
+                    MusicMoudle.localList = it as ArrayList<Music>
+                    showLocalMusic(it)
+                    tvTitle.text = "本地音乐(${MusicMoudle.localList.size})"
+                    Caches.save("localCount", "${it.size}")
+                    showContentView()
                 }
-            })
+                App.isFirstSacanLocal = false
+            }
         } else {
-            showLocalMusic(MusicMoudle.localList)
-            tvTitle.text = "本地音乐(${MusicMoudle.localList.size})"
+            if (MusicMoudle.localList.isEmpty())
+                showEmptyView()
+            else {
+                showLocalMusic(MusicMoudle.localList)
+                tvTitle.text = "本地音乐(${MusicMoudle.localList.size})"
+            }
         }
 
         ivBack.setOnClickListener {

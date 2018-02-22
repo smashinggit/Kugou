@@ -3,6 +3,7 @@ package com.cs.kugou.utils
 import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
+import android.util.Log
 import com.cs.framework.Android
 import com.cs.kugou.db.Music
 import java.io.File
@@ -65,6 +66,7 @@ object MediaUtils {
                         Android.log("本地音乐  " + music.toString())
                     }
                 }
+                listener.onComplete()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -116,6 +118,7 @@ object MediaUtils {
     interface ForeachListener {
         fun foreach(music: Music)
         fun filter(hash: String): Boolean
+        fun onComplete()
     }
 
 }

@@ -25,18 +25,16 @@ class RecentFragment : BaseFragment() {
         tvTitle.text = "最近"
         showLoadingView()
 
-        MusicMoudle.getRecentyList(object : MusicMoudle.onReadCompletedListener {
-            override fun onReadComplete(list: List<Music>) {
-                if (list.isEmpty())
-                    showEmptyView()
-                else {
-                    showContentView()
-                    MusicMoudle.recentList = list as ArrayList<Music>
-                    showRecentMusic(list)
-                    Caches.save("recentCount", "${list.size}")
-                }
+        MusicMoudle.getRecentyList {
+            if (it.isEmpty())
+                showEmptyView()
+            else {
+                showContentView()
+                MusicMoudle.recentList = it as ArrayList<Music>
+                showRecentMusic(it)
+                Caches.save("recentCount", "${it.size}")
             }
-        })
+        }
 
         ivBack.setOnClickListener {
             (activity as MainActivity).mPresenter.popFragment()

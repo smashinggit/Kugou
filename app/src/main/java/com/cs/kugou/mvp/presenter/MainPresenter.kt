@@ -25,18 +25,16 @@ import org.greenrobot.eventbus.Subscribe
 class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
 
     override fun getPlayList() {
-        MusicMoudle.getPlayList(object : MusicMoudle.onReadCompletedListener {
-            override fun onReadComplete(list: List<Music>) {
-                MusicMoudle.playList = list as ArrayList<Music>
-                //播放列表准备就绪
-                Handler().postDelayed({
-                    var event = PlayerService.MusicActionEvent()
-                    event.action = PlayerService.ACTION_LOAD
-                    event.position = Caches.queryInt("playingIndex")
-                    EventBus.getDefault().post(event)
-                }, 300)
-            }
-        })
+        MusicMoudle.getPlayList {
+            MusicMoudle.playList = it as ArrayList<Music>
+            //播放列表准备就绪
+            Handler().postDelayed({
+                var event = PlayerService.MusicActionEvent()
+                event.action = PlayerService.ACTION_LOAD
+                event.position = Caches.queryInt("playingIndex")
+                EventBus.getDefault().post(event)
+            }, 300)
+        }
     }
 
     override fun popFragment() {

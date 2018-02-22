@@ -28,12 +28,6 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         var intent = Intent(this, PlayerService::class.java)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            startForegroundService(intent)
-//        } else {
-//            startService(intent)
-//        }
-
         startService(intent)
 
         mView = MainView(this)

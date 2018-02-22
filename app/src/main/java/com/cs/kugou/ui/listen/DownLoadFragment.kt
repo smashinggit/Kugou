@@ -25,19 +25,16 @@ class DownLoadFragment : BaseFragment() {
         tvTitle.text = "下载"
         showLoadingView()
 
-        MusicMoudle.getDownLoadList(object : MusicMoudle.onReadCompletedListener {
-            override fun onReadComplete(list: List<Music>) {
-                if (list.isEmpty())
-                    showEmptyView()
-                else {
-                    showContentView()
-                    MusicMoudle.downloadList = list as ArrayList<Music>
-                    showLikeMusic(list)
-                    Caches.save("downCount", "${list.size}")
-                }
+        MusicMoudle.getDownLoadList {
+            if (it.isEmpty())
+                showEmptyView()
+            else {
+                showContentView()
+                MusicMoudle.downloadList = it as ArrayList<Music>
+                showLikeMusic(it)
+                Caches.save("downCount", "${it.size}")
             }
-        })
-
+        }
         ivBack.setOnClickListener {
             (activity as MainActivity).mPresenter.popFragment()
         }

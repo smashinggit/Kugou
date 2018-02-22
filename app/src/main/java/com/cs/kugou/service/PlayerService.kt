@@ -18,6 +18,7 @@ import android.support.v4.app.NotificationCompat
 import android.view.View
 import android.widget.Filter
 import android.widget.RemoteViews
+import android.widget.Toast
 import com.cs.framework.Android
 import com.cs.kugou.R
 import com.cs.kugou.db.Music
@@ -27,6 +28,8 @@ import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.utils.Caches
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import java.io.FileNotFoundException
+import java.io.IOException
 
 /**
  *
@@ -105,8 +108,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     private fun update(event: MusicActionEvent) {
         mPlayList = MusicMoudle.playList
         mPlayingIndex = event.position
-        startForeground(FOREGROUND_ID, getNotification(0, mPlayList[mPlayingIndex]))
-        Caches.saveInt("playingIndex", mPlayingIndex)
+        if (!mPlayList.isEmpty()){
+            startForeground(FOREGROUND_ID, getNotification(0, mPlayList[mPlayingIndex]))
+            Caches.saveInt("playingIndex", mPlayingIndex)
+        }
     }
 
     //播放进度
@@ -180,33 +185,42 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     //加载音乐
     private fun loadMusic(music: Music, isPlay: Boolean = false) {
-        var temp = System.currentTimeMillis()
-        mCurrentState = STATE_LOADING
-        mHandler.removeMessages(0)
-        sendStateChangeEvent(mCurrentState) //更新播放状态
-        EventBus.getDefault().post(PlayingInfoEvent(music))//更新播放栏信息
-
-        mPlayer?.let { releasePlayer() }
-        mPlayer = MediaPlayer()
-        mPlayer?.reset()
-        mPlayer?.setDataSource(this, Uri.parse(music.url))
-        mPlayer?.setOnErrorListener(this)
-        mPlayer?.setOnCompletionListener(this)
-        mPlayer?.prepareAsync()
-        mPlayer?.setOnPreparedListener {
-            mCurrentState = STATE_PREPRAED
+        try {
+            var temp = System.currentTimeMillis()
+            mCurrentState = STATE_LOADING
+            mHandler.removeMessages(0)
             sendStateChangeEvent(mCurrentState) //更新播放状态
-            if (isPlay) {
-                //两首音乐播放间隔为500毫秒
-                var time = System.currentTimeMillis() - temp
-                if (time < 500) {
-                    Handler().postDelayed({ playMusic() }, 500 - time)
-                } else {
-                    playMusic()
+            EventBus.getDefault().post(PlayingInfoEvent(music))//更新播放栏信息
+
+            mPlayer?.let { releasePlayer() }
+            mPlayer = MediaPlayer()
+            mPlayer?.reset()
+            mPlayer?.setDataSource(this, Uri.parse(music.url))
+            mPlayer?.setOnErrorListener(this)
+            mPlayer?.setOnCompletionListener(this)
+            mPlayer?.prepareAsync()
+            mPlayer?.setOnPreparedListener {
+                mCurrentState = STATE_PREPRAED
+                sendStateChangeEvent(mCurrentState) //更新播放状态
+                if (isPlay) {
+                    //两首音乐播放间隔为500毫秒
+                    var time = System.currentTimeMillis() - temp
+                    if (time < 500) {
+                        Handler().postDelayed({ playMusic() }, 500 - time)
+                    } else {
+                        playMusic()
+                    }
                 }
+                Caches.saveInt("playingIndex", mPlayingIndex)
+                Android.log("音乐加载完成")
             }
-            Caches.saveInt("playingIndex", mPlayingIndex)
-            Android.log("音乐加载完成")
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Toast.makeText(this, "读取文件失败", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "播放错误", Toast.LENGTH_SHORT).show()
         }
     }
 

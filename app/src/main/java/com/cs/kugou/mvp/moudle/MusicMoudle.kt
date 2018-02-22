@@ -15,25 +15,25 @@ import org.greenrobot.eventbus.EventBus
 object MusicMoudle {
     var localList = ArrayList<Music>() //本地列表
     var playList = ArrayList<Music>() //播放列表
-    var likeList = ArrayList<Music>() //播放列表
-    var downloadList = ArrayList<Music>() //播放列表
-    var recentList = ArrayList<Music>() //播放列表
+    var likeList = ArrayList<Music>() //喜欢列表
+    var downloadList = ArrayList<Music>() //下载列表
+    var recentList = ArrayList<Music>() //最近播放列表
 
     //读取本地列表
-    fun getLoacalList(listener: onReadCompletedListener) {
+    fun getLoacalList(completedCallBack: (List<Music>) -> Unit) {
 
         (select from Music::class
                 where (Music_Table.location eq 0))
                 .async() list { _, list ->
             list?.let {
-                listener.onReadComplete(it)
+                completedCallBack(it)
             }
             Android.log("查询本地音乐- ${list.size}")
         }
     }
 
     //读取播放列表
-    fun getPlayList(listener: onReadCompletedListener) {
+    fun getPlayList(completedCallBack: (List<Music>) -> Unit) {
 
         SQLite.select(Music::class.allProperty())
                 .from(Music::class)
@@ -41,77 +41,77 @@ object MusicMoudle {
                 .on((MusicType_Table.tid eq Type.PLAY)
                         and (MusicType_Table.mHash eq Music_Table.hash))
                 .async() list { _, list ->
-            listener.onReadComplete(list)
+            completedCallBack(list)
             Android.log("查询播放列表- ${list.size}")
         }
     }
 
     //读取喜欢列表
-    fun getLikeList(listener: onReadCompletedListener) {
+    fun getLikeList(completedCallBack: (List<Music>) -> Unit) {
         SQLite.select(Music::class.allProperty())
                 .from(Music::class.java)
                 .join(MusicType::class.java, Join.JoinType.INNER)
                 .on((MusicType_Table.tid eq Type.LIKE)
                         and (MusicType_Table.mHash eq Music_Table.hash))
                 .async() list { _, list ->
-            listener.onReadComplete(list)
+            completedCallBack(list)
             Android.log("查询喜欢列表- ${list.size}")
         }
     }
+
     //读取下载列表
-    fun getDownLoadList(listener: onReadCompletedListener) {
+    fun getDownLoadList(completedCallBack: (List<Music>) -> Unit) {
         SQLite.select(Music::class.allProperty())
                 .from(Music::class.java)
                 .join(MusicType::class.java, Join.JoinType.INNER)
                 .on((MusicType_Table.tid eq Type.DOWNLOAD)
                         and (MusicType_Table.mHash eq Music_Table.hash))
                 .async() list { _, list ->
-            listener.onReadComplete(list)
+            completedCallBack(list)
             Android.log("查询下载列表- ${list.size}")
         }
     }
+
     //读取最近列表
-    fun getRecentyList(listener: onReadCompletedListener) {
+    fun getRecentyList(completedCallBack: (List<Music>) -> Unit) {
         SQLite.select(Music::class.allProperty())
                 .from(Music::class.java)
                 .join(MusicType::class.java, Join.JoinType.INNER)
                 .on((MusicType_Table.tid eq Type.RECENT)
                         and (MusicType_Table.mHash eq Music_Table.hash))
                 .async() list { _, list ->
-            listener.onReadComplete(list)
+            completedCallBack(list)
             Android.log("查询最近列表- ${list.size}")
         }
     }
 
 
     //更新播放列表
-    fun savePlayListToDB(list: ArrayList<Music>, listener: onCompletedListener) {
+    fun savePlayListToDB(list: ArrayList<Music>, completedCallBack: () -> Unit) {
 
-        clearPlayList(object : onCompletedListener {
-            override fun onComplete() {
+        clearPlayList {
+            //如果播放列表没有此音乐，则保存
+            list.filterNot { isExistType(it.hash, Type.PLAY) }
+                    .forEach { insert(MusicType(it.hash, Type.PLAY)) }
+            //如果数据库列表没有此音乐，则保存
+            list.filterNot { isExistMusic(it.hash) }
+                    .forEach { insert(it) }
+            playList = list
 
-                //如果播放列表没有此音乐，则保存
-                list.filterNot { isExistType(it.hash, Type.PLAY) }
-                        .forEach { insert(MusicType(it.hash, Type.PLAY)) }
-                //如果数据库列表没有此音乐，则保存
-                list.filterNot { isExistMusic(it.hash) }
-                        .forEach { insert(it) }
-                playList = list
+            completedCallBack()
+            Android.log("数据库保存播放列表 ${list.size}")
+        }
 
-                listener.onComplete()
-                Android.log("数据库保存播放列表 ${list.size}")
-            }
-        })
     }
 
     //清空播放列表
-    private fun clearPlayList(listener: onCompletedListener) {
+    private fun clearPlayList(completedCallBack: () -> Unit) {
         //删除旧的播放列表
         SQLite.delete(MusicType::class.java)
                 .where(MusicType_Table.tid eq Type.PLAY)
                 .async() list { _, _ ->
             Android.log("清空播放列表")
-            listener.onComplete()
+            completedCallBack()
         }
     }
 
@@ -162,13 +162,5 @@ object MusicMoudle {
             }
         }
         return false
-    }
-
-    interface onReadCompletedListener {
-        fun onReadComplete(list: List<Music>)
-    }
-
-    interface onCompletedListener {
-        fun onComplete()
     }
 }
