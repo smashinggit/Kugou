@@ -1,4 +1,4 @@
-package com.cs.kugou.view
+package com.cs.kugou.widget
 
 import android.content.Context
 import android.view.LayoutInflater

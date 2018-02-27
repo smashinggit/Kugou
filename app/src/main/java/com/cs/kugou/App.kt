@@ -2,7 +2,9 @@ package com.cs.kugou
 
 import android.app.Application
 import com.cs.framework.Android
+import com.cs.kugou.utils.FileUtils
 import com.raizlabs.android.dbflow.config.FlowManager
+import java.io.File
 
 
 /**

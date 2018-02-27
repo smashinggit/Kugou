@@ -15,7 +15,8 @@ import retrofit2.converter.gson.GsonConverterFactory
  * desc:
  */
 object HttpHepler {
-    var BASE_URL = ""
+    var BASE_URL = "http://mobilecdn.kugou.com"
+
     private val httpClient = OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().setLevel(if (Android.DEV) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE))
             .build()
@@ -24,11 +25,14 @@ object HttpHepler {
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(httpClient)
-            .baseUrl(BASE_URL)
 
 
     fun <S> createService(service: Class<S>): S {
-        return builder.build().create(service)
+        return builder.baseUrl(BASE_URL).build().create(service)
+    }
+
+    fun <S> createService(service: Class<S>, baseUrl: String): S {
+        return builder.baseUrl(baseUrl).build().create(service)
     }
 
 

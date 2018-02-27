@@ -68,6 +68,9 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         var mPlayList = arrayListOf<Music>()//播放列表
         var mPlayingIndex: Int = 0 //正在播放的音乐下标
+        var mLyricPath: String? = null      //歌词路径
+
+        fun getCurrentMusic(): Music? = if (!mPlayList.isEmpty()) mPlayList[mPlayingIndex] else null  //获取当前音乐
     }
 
     var receiver = RemoteViewReceiver()  //此广播用于接收通知栏的操作信息
@@ -108,7 +111,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     private fun update(event: MusicActionEvent) {
         mPlayList = MusicMoudle.playList
         mPlayingIndex = event.position
-        if (!mPlayList.isEmpty()){
+        if (!mPlayList.isEmpty()) {
             startForeground(FOREGROUND_ID, getNotification(0, mPlayList[mPlayingIndex]))
             Caches.saveInt("playingIndex", mPlayingIndex)
         }

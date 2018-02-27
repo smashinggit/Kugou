@@ -12,7 +12,7 @@ import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.ui.listen.ListenFragment
 import com.cs.kugou.ui.MainActivity
-import com.cs.kugou.view.MyTabView
+import com.cs.kugou.widget.MyTabView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom.*
 import kotlinx.android.synthetic.main.title.*

@@ -15,6 +15,7 @@ import com.cs.kugou.mvp.view.MainView
 import com.cs.kugou.service.PlayerService
 import com.cs.kugou.utils.Caches
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 
 class MainActivity : BaseActivity() {
@@ -34,10 +35,14 @@ class MainActivity : BaseActivity() {
         mPresenter = MainPresenter(this)
         mPresenter.bind(mView)
         mPresenter.getPlayList()
+
+        bottom.setOnClickListener {
+            var intent = Intent(this, MusicActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onBackPressed() {
-
         if (topCount == 0) {     // 跳转到桌面
             val intent = Intent(Intent.ACTION_MAIN)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -46,7 +51,6 @@ class MainActivity : BaseActivity() {
         } else {
             mPresenter.popFragment()
         }
-
     }
 
     override fun onDestroy() {

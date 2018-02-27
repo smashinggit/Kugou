@@ -8,13 +8,16 @@ import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.R
 import com.cs.kugou.db.Music
+import com.cs.kugou.lyric.formats.krc.KrcLyricReader
 import com.cs.kugou.mvp.contract.MainContract
 import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.service.PlayerService
 import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.utils.Caches
+import com.cs.kugou.utils.LyricUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import java.io.File
 
 /**
  *
@@ -22,7 +25,7 @@ import org.greenrobot.eventbus.Subscribe
  * data : 2018/1/19
  * desc:
  */
-class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
+class MainPresenter(var mContext: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
 
     override fun getPlayList() {
         MusicMoudle.getPlayList {
@@ -38,12 +41,12 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
     }
 
     override fun popFragment() {
-        (context as MainActivity).supportFragmentManager.popBackStack()
-        (context as MainActivity).topCount--
+        (mContext as MainActivity).supportFragmentManager.popBackStack()
+        (mContext as MainActivity).topCount--
     }
 
     override fun addFragment(fragment: Fragment, tag: String) {
-        (context as MainActivity).supportFragmentManager
+        (mContext as MainActivity).supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_right_in)
                 //  .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -51,7 +54,7 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
                 .addToBackStack(tag)
                 .commit()
 
-        (context as MainActivity).topCount++
+        (mContext as MainActivity).topCount++
 
     }
 
@@ -61,7 +64,7 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
         if (PlayerService.mCurrentState == PlayerService.STATE_PREPRAED || PlayerService.mCurrentState == PlayerService.STATE_PAUSE) {
             sendMusicActionEvent(PlayerService.ACTION_PLAY)
         } else {
-            Toast.makeText(context, "请选择一首音乐", Toast.LENGTH_SHORT).show()
+            Toast.makeText(mContext, "请选择一首音乐", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -109,6 +112,9 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
             PlayerService.STATE_LOADING -> {
                 ui?.setProgress(0)
                 ui?.showPlay()
+                PlayerService.getCurrentMusic()?.let {
+                    loadLyric(it) //加载歌词
+                }
             }
             PlayerService.STATE_PREPRAED -> {
                 ui?.showPlay()
@@ -120,6 +126,23 @@ class MainPresenter(var context: Context) : KBasePresenter<MainContract.Presente
                 ui?.showPlay()
             }
         }
+    }
+
+    //加载歌词
+    private fun loadLyric(music: Music) {
+        var keyword = if (music.singerName == "未知") music.musicName else music.singerName + " - " + music.musicName
+
+        var callBack = { result: Boolean, path: String ->
+
+            if (result) {   //加载成功
+                PlayerService.mLyricPath = path
+                var lyric = KrcLyricReader.readFile(File(path)) //解析歌词
+                Android.log("歌词加载完成")
+            } else {//加载失败
+                Toast.makeText(mContext, "获取歌词失败", Toast.LENGTH_SHORT).show()
+            }
+        }
+        LyricUtils.loadLyric(keyword, keyword, music.duration.toString(), music.hash, callBack)
     }
 
     /**
