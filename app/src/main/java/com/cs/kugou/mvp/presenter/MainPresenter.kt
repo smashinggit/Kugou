@@ -15,6 +15,7 @@ import com.cs.kugou.service.PlayerService
 import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.utils.Caches
 import com.cs.kugou.utils.LyricUtils
+import kotlinx.android.synthetic.main.activity_music.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.io.File
@@ -133,10 +134,10 @@ class MainPresenter(var mContext: Context) : KBasePresenter<MainContract.Present
         var keyword = if (music.singerName == "未知") music.musicName else music.singerName + " - " + music.musicName
 
         var callBack = { result: Boolean, path: String ->
-
             if (result) {   //加载成功
-                PlayerService.mLyricPath = path
+               // PlayerService.mLyricPath = path
                 var lyric = KrcLyricReader.readFile(File(path)) //解析歌词
+                PlayerService.mLyric = lyric
                 Android.log("歌词加载完成")
             } else {//加载失败
                 Toast.makeText(mContext, "获取歌词失败", Toast.LENGTH_SHORT).show()

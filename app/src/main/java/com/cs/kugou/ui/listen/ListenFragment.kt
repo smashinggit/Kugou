@@ -23,8 +23,8 @@ class ListenFragment : BaseFragment() {
 
 
     override fun init() {
-        recyclerview.adapter = MusicClassifyAdapter(context!!)
-        recyclerview.layoutManager = GridLayoutManager(context!!, 3, GridLayoutManager.VERTICAL, false)
+        recyclerview.adapter = MusicClassifyAdapter(mContext)
+        recyclerview.layoutManager = GridLayoutManager(mContext, 3, GridLayoutManager.VERTICAL, false)
 
         tvLocalNum.text = if (Caches.query("localCount").isEmpty()) "0" else Caches.query("localCount")
         tvLikeNum.text = if (Caches.query("likeCount").isEmpty()) "0" else Caches.query("likeCount")

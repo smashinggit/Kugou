@@ -1,11 +1,14 @@
 package com.cs.kugou.mvp.presenter
 
+import android.app.Activity
 import android.content.Context
 import android.widget.Toast
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.contract.MusicContract
 import com.cs.kugou.service.PlayerService
+import com.cs.kugou.ui.MusicActivity
+import kotlinx.android.synthetic.main.activity_music.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -15,7 +18,7 @@ import org.greenrobot.eventbus.Subscribe
  * data : 2018/2/22
  * desc:
  */
-class MusicPresenter(var mContext: Context) : KBasePresenter<MusicContract.Presenter, MusicContract.View>(), MusicContract.Presenter {
+class MusicPresenter(var mContext: MusicActivity) : KBasePresenter<MusicContract.Presenter, MusicContract.View>(), MusicContract.Presenter {
 
 
     override fun play() {
@@ -49,6 +52,7 @@ class MusicPresenter(var mContext: Context) : KBasePresenter<MusicContract.Prese
     fun onPlayingInfoEvent(event: PlayerService.PlayingInfoEvent) {
         ui?.updateMusicInfo(event.music)
         ui?.setProgress(event.progress)
+        mContext.lyricView.setCurrentTimeMillis(event.progress.toLong())
     }
 
     //更新播放状态 (发送源PlayerService)
@@ -93,6 +97,9 @@ class MusicPresenter(var mContext: Context) : KBasePresenter<MusicContract.Prese
         EventBus.getDefault().register(this)
         if (PlayerService.mCurrentState == PlayerService.STATE_PLAYING) {
             ui?.showPause()
+        }
+        PlayerService.mLyric?.let {
+            mContext.lyricView.setLyric(it)
         }
     }
 

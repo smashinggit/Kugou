@@ -39,6 +39,8 @@ object KrcLyricReader : LyricReader() {
 
 
     override fun readInputStream(inputStream: InputStream): Lyric {
+        var noLyricLineCount = 0
+
         var lyric = Lyric()
         var lyricLines = TreeMap<Int, Lyric.LyricLine>()
         var lyricTag = HashMap<String, Any>()
@@ -50,11 +52,14 @@ object KrcLyricReader : LyricReader() {
             var lineInfo = lyricTextSplit[index]
 
             try {
-                var lyricLine = parserLineInfos(lyricTag, lineInfo, lyric)  //解析每一行
-                if (lyricLine != null) {
-                    lyricLines.put(index, lyricLine)
+                var lyricLine = parserLineInfos(lyricTag, lineInfo)  //解析每一行
+                //过滤歌词文件头部相关信息。只保留歌词
+                if (lyricLine.lineLyric.isEmpty()) {
+                    noLyricLineCount++
+                } else {
+                    lyricLines.put(index - noLyricLineCount, lyricLine)
                 }
-               // Android.log("第 $index 行歌词  ${lyricLine.lineLyric}")
+                //  Android.log("第 ${index - noLyricLineCount} 行歌词  ${lyricLine.lineLyric}")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -63,12 +68,12 @@ object KrcLyricReader : LyricReader() {
         lyric.lyricTag = lyricTag
         lyric.lyricLineInfo = lyricLines
 
-       // Android.log("读取歌词信息 $lyric")
+        // Android.log("读取歌词信息 $lyric")
         return lyric
     }
 
     //解析每一行
-    private fun parserLineInfos(lyricTag: HashMap<String, Any>, lineInfo: String, lyric: Lyric): Lyric.LyricLine {
+    private fun parserLineInfos(lyricTag: HashMap<String, Any>, lineInfo: String): Lyric.LyricLine {
         var lyricLine = Lyric.LyricLine()
 
         if (lineInfo.startsWith(LEGAL_SONGNAME_PREFIX)) {  //歌曲名
@@ -192,7 +197,7 @@ object KrcLyricReader : LyricReader() {
             zipByte[k] = zipByte[k] xor LyricUtils.miarry[l].toByte()
         }
         var result = String(ZLibUtils.decompress(zipByte), Charset.defaultCharset())
-      //  Android.log("krc转文本\n $result")
+        //  Android.log("krc转文本\n $result")
         return result
     }
 

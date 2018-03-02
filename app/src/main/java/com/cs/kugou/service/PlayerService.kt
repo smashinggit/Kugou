@@ -21,6 +21,7 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import com.cs.framework.Android
 import com.cs.kugou.R
+import com.cs.kugou.bean.Lyric
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.mvp.view.MainView
@@ -69,6 +70,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         var mPlayList = arrayListOf<Music>()//播放列表
         var mPlayingIndex: Int = 0 //正在播放的音乐下标
         var mLyricPath: String? = null      //歌词路径
+        var mLyric: Lyric? = null           //歌词
 
         fun getCurrentMusic(): Music? = if (!mPlayList.isEmpty()) mPlayList[mPlayingIndex] else null  //获取当前音乐
     }
@@ -81,7 +83,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             super.handleMessage(msg)
             if (mCurrentState == STATE_PLAYING) {
                 EventBus.getDefault().post(PlayingInfoEvent(mPlayList[mPlayingIndex], getPlayPosition()))//向Activity发送播放进度
-                sendEmptyMessageDelayed(0, 1000)
+                sendEmptyMessageDelayed(0, 300)
             }
         }
     }
@@ -189,6 +191,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     //加载音乐
     private fun loadMusic(music: Music, isPlay: Boolean = false) {
         try {
+            mLyric = null
+
             var temp = System.currentTimeMillis()
             mCurrentState = STATE_LOADING
             mHandler.removeMessages(0)
@@ -374,6 +378,5 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                 }
             }
         }
-
     }
 }

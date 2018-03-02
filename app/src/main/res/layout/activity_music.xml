@@ -42,7 +42,10 @@
         android:textSize="14dp" />
 
 
-    <TextView
+    <com.cs.kugou.widget.LyricView
+        android:id="@+id/lyricView"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
@@ -67,7 +70,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_weight="1"
-            android:src="@drawable/select_ic_download" />
+            android:src="@drawable/select_ic_download2" />
 
         <ImageView
             android:layout_width="24dp"
