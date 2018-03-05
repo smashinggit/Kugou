@@ -90,7 +90,7 @@ object MusicMoudle {
     fun savePlayListToDB(list: ArrayList<Music>, completedCallBack: () -> Unit) {
 
         clearPlayList {
-            //如果播放列表没有此音乐，则保存
+            //如果播放列表没有此音乐，则保存(此处保存的是多对多关系中的关系表)
             list.filterNot { isExistType(it.hash, Type.PLAY) }
                     .forEach { insert(MusicType(it.hash, Type.PLAY)) }
             //如果数据库列表没有此音乐，则保存
@@ -101,7 +101,6 @@ object MusicMoudle {
             completedCallBack()
             Android.log("数据库保存播放列表 ${list.size}")
         }
-
     }
 
     //清空播放列表

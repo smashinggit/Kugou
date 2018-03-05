@@ -1,6 +1,5 @@
 package com.cs.kugou.mvp.presenter
 
-import android.content.Context
 import android.os.Handler
 import android.support.v4.app.Fragment
 import android.widget.Toast
@@ -15,7 +14,6 @@ import com.cs.kugou.service.PlayerService
 import com.cs.kugou.ui.MainActivity
 import com.cs.kugou.utils.Caches
 import com.cs.kugou.utils.LyricUtils
-import kotlinx.android.synthetic.main.activity_music.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.io.File
@@ -26,7 +24,7 @@ import java.io.File
  * data : 2018/1/19
  * desc:
  */
-class MainPresenter(var mContext: Context) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
+class MainPresenter(var mContext: MainActivity) : KBasePresenter<MainContract.Presenter, MainContract.View>(), MainContract.Presenter {
 
     override fun getPlayList() {
         MusicMoudle.getPlayList {
@@ -35,19 +33,19 @@ class MainPresenter(var mContext: Context) : KBasePresenter<MainContract.Present
             Handler().postDelayed({
                 var event = PlayerService.MusicActionEvent()
                 event.action = PlayerService.ACTION_LOAD
-                event.position = Caches.queryInt("playingIndex")
+                event.position = Caches.queryInt(mContext.resources.getString(R.string.music_playingIndex))
                 EventBus.getDefault().post(event)
             }, 300)
         }
     }
 
     override fun popFragment() {
-        (mContext as MainActivity).supportFragmentManager.popBackStack()
-        (mContext as MainActivity).topCount--
+        mContext.supportFragmentManager.popBackStack()
+        mContext.topCount--
     }
 
     override fun addFragment(fragment: Fragment, tag: String) {
-        (mContext as MainActivity).supportFragmentManager
+        mContext.supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_right_in)
                 //  .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -55,10 +53,8 @@ class MainPresenter(var mContext: Context) : KBasePresenter<MainContract.Present
                 .addToBackStack(tag)
                 .commit()
 
-        (mContext as MainActivity).topCount++
-
+        mContext.topCount++
     }
-
 
     override fun play() {
         //就绪状态和暂停状态可以播放
@@ -82,15 +78,7 @@ class MainPresenter(var mContext: Context) : KBasePresenter<MainContract.Present
         }
     }
 
-    override fun init() {
-        EventBus.getDefault().register(this)
-    }
-
-    override fun destory() {
-        EventBus.getDefault().unregister(this)
-    }
-
-    //更新播放栏信息 (发送源PlayerService)
+    //更新播放信息 (发送源PlayerService)
     @Subscribe()
     fun onPlayingInfoEvent(event: PlayerService.PlayingInfoEvent) {
         ui?.updateMusicInfo(event.music)
@@ -135,7 +123,7 @@ class MainPresenter(var mContext: Context) : KBasePresenter<MainContract.Present
 
         var callBack = { result: Boolean, path: String ->
             if (result) {   //加载成功
-               // PlayerService.mLyricPath = path
+                // PlayerService.mLyricPath = path
                 var lyric = KrcLyricReader.readFile(File(path)) //解析歌词
                 PlayerService.mLyric = lyric
                 Android.log("歌词加载完成")
@@ -146,12 +134,18 @@ class MainPresenter(var mContext: Context) : KBasePresenter<MainContract.Present
         LyricUtils.loadLyric(keyword, keyword, music.duration.toString(), music.hash, callBack)
     }
 
-    /**
-     * 向PlayerService发送指令，控制音乐
-     */
+    // 向PlayerService发送指令，控制音乐
     fun sendMusicActionEvent(action: Int) {
         var event = PlayerService.MusicActionEvent()
         event.action = action
         EventBus.getDefault().post(event)
+    }
+
+    override fun init() {
+        EventBus.getDefault().register(this)
+    }
+
+    override fun destory() {
+        EventBus.getDefault().unregister(this)
     }
 }

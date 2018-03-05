@@ -44,10 +44,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         const val FOREGROUND_ID = 10
         const val REQUEST_ID = 1
 
-        const val REMOTEVIEW_PLAY = "play"
-        const val REMOTEVIEW_PAUSE = "pause"
-        const val REMOTEVIEW_NEXT = "next"
-        const val REMOTEVIEW_LYRIC = "lyric"
+        const val REMOTEVIEW_PLAY = "play"    //播放(通知栏的操作)
+        const val REMOTEVIEW_PAUSE = "pause"  //暂停
+        const val REMOTEVIEW_NEXT = "next"    //下一首
+        const val REMOTEVIEW_LYRIC = "lyric"  //桌面歌词
 
         const val ACTION_PLAY = 0       //播放
         const val ACTION_PAUSE = 1      //暂停
@@ -64,7 +64,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         const val MODE_SEQUENCE = 0     //顺序播放
         const val MODE_LOOP = 1         //循环播放
-        const val MODE_RANDOM = 1       //随机播放
+        const val MODE_RANDOM = 2       //随机播放
         var mCurrentMode = MODE_SEQUENCE
 
         var mPlayList = arrayListOf<Music>()//播放列表
@@ -88,7 +88,26 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    //控制音乐
+    override fun onCreate() {
+        super.onCreate()
+        EventBus.getDefault().register(this)
+
+        var filter = IntentFilter()
+        filter.addAction(REMOTEVIEW_PLAY)
+        filter.addAction(REMOTEVIEW_PAUSE)
+        filter.addAction(REMOTEVIEW_NEXT)
+        filter.addAction(REMOTEVIEW_LYRIC)
+        registerReceiver(receiver, filter)
+        Android.log("PlayerService  onCreate")
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Android.log("service 构建前台服务")
+        startForeground(FOREGROUND_ID, getNotification(0, null))
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    //控制音乐(发送源：相关操作页面)
     @Subscribe()
     fun onMusicActionEvent(event: MusicActionEvent) {
         when (event.action) {
@@ -109,40 +128,145 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             }
         }
     }
+    //播放进度(发送源：相关操作页面)
+    @Subscribe
+    fun onSeekExevt(event: MainView.SeekEvent) {
+        seekToPosition(event.position)
+    }
 
     private fun update(event: MusicActionEvent) {
         mPlayList = MusicMoudle.playList
         mPlayingIndex = event.position
         if (!mPlayList.isEmpty()) {
             startForeground(FOREGROUND_ID, getNotification(0, mPlayList[mPlayingIndex]))
-            Caches.saveInt("playingIndex", mPlayingIndex)
         }
     }
 
-    //播放进度
-    @Subscribe
-    fun onSeekExevt(event: MainView.SeekEvent) {
-        seekToPosition(event.position)
+    //播放音乐
+    private fun play() {
+        if (mCurrentState == STATE_PREPRAED || mCurrentState == STATE_PAUSE) {
+            mCurrentState = STATE_PLAYING
+            sendStateChangeEvent(mCurrentState) //通知播放状态
+            startForeground(FOREGROUND_ID, getNotification(1, mPlayList[mPlayingIndex]))//更新通知栏
+            mPlayer?.start()
+            mHandler.sendEmptyMessage(0)
+            Android.log("播放音乐")
+        }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        EventBus.getDefault().register(this)
-
-        var filter = IntentFilter()
-        filter.addAction(REMOTEVIEW_PLAY)
-        filter.addAction(REMOTEVIEW_PAUSE)
-        filter.addAction(REMOTEVIEW_NEXT)
-        filter.addAction(REMOTEVIEW_LYRIC)
-        registerReceiver(receiver, filter)
-
-        Android.log("PlayerService  onCreate")
+    private fun pause() {
+        if (mCurrentState == STATE_PLAYING) {
+            mCurrentState = STATE_PAUSE
+            sendStateChangeEvent(mCurrentState) //通知播放状态
+            startForeground(FOREGROUND_ID, getNotification(0, mPlayList[mPlayingIndex]))//更新通知栏
+            mPlayer?.pause()
+            mHandler.removeMessages(0)
+            Android.log("暂停音乐")
+        }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Android.log("service 构建前台服务")
-        startForeground(FOREGROUND_ID, getNotification(0, null))
-        return super.onStartCommand(intent, flags, startId)
+    private fun next() {
+        if (!mPlayList.isEmpty()) {
+            when (mCurrentMode) {
+                MODE_RANDOM -> {
+                }
+                MODE_LOOP -> {
+                    if (mPlayingIndex < (mPlayList.size - 1)) {
+                        mPlayingIndex++
+                    } else {
+                        mPlayingIndex = 0
+                    }
+                    loadMusic(mPlayList[mPlayingIndex], true)
+                }
+                MODE_SEQUENCE -> {
+                    if (mPlayingIndex == (mPlayList.size - 1)) {
+                        mPlayingIndex = -1
+                        playComplete()
+                    } else {
+                        mPlayingIndex++
+                        loadMusic(mPlayList[mPlayingIndex], true)
+                    }
+                }
+            }
+            startForeground(FOREGROUND_ID, getNotification(1, mPlayList[mPlayingIndex]))//更新通知栏
+        }
+    }
+
+    //播放完成
+    private fun playComplete() {
+        mCurrentState = STATE_IDLE
+        releasePlayer()
+        sendStateChangeEvent(mCurrentState) //更新播放状态
+        Caches.saveInt(resources.getString(R.string.music_playingIndex), 0)
+    }
+
+    //加载音乐
+    private fun loadMusic(music: Music, isPlay: Boolean = false) {
+        try {
+            mLyric = null
+
+            var temp = System.currentTimeMillis()
+            mCurrentState = STATE_LOADING
+            mHandler.removeMessages(0)
+            sendStateChangeEvent(mCurrentState) //通知播放状态
+            EventBus.getDefault().post(PlayingInfoEvent(music))//通知播放信息
+
+            mPlayer?.let { releasePlayer() }
+            mPlayer = MediaPlayer()
+            mPlayer?.reset()
+            mPlayer?.setDataSource(this, Uri.parse(music.url))
+            mPlayer?.setOnErrorListener(this)
+            mPlayer?.setOnCompletionListener(this)
+            mPlayer?.prepareAsync()
+            mPlayer?.setOnPreparedListener {
+                mCurrentState = STATE_PREPRAED
+                sendStateChangeEvent(mCurrentState) //更新播放状态
+                if (isPlay) {
+                    //两首音乐播放间隔为500毫秒
+                    var time = System.currentTimeMillis() - temp
+                    if (time < 500) {
+                        Handler().postDelayed({ play() }, 500 - time)
+                    } else {
+                        play()
+                    }
+                }
+                Caches.saveInt(resources.getString(R.string.music_playingIndex), mPlayingIndex)
+                Android.log("音乐加载完成")
+            }
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Toast.makeText(this, "读取文件失败", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "播放错误", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    //播放完成的回调
+    override fun onCompletion(mp: MediaPlayer?) {
+        next()
+    }
+
+    //播放错误的回调
+    override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
+        return true
+    }
+
+    fun getPlayPosition(): Int {
+        return try {
+            if (mPlayer == null) 0 else mPlayer!!.currentPosition
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    private fun seekToPosition(position: Int) {
+        try {
+            mPlayer?.seekTo(position)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun getNotification(flag: Int, music: Music?): Notification {
@@ -186,140 +310,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                 .setContentIntent(penddingIntentMain)
                 .setContent(remoteView)
         return builder.build()
-    }
-
-    //加载音乐
-    private fun loadMusic(music: Music, isPlay: Boolean = false) {
-        try {
-            mLyric = null
-
-            var temp = System.currentTimeMillis()
-            mCurrentState = STATE_LOADING
-            mHandler.removeMessages(0)
-            sendStateChangeEvent(mCurrentState) //更新播放状态
-            EventBus.getDefault().post(PlayingInfoEvent(music))//更新播放栏信息
-
-            mPlayer?.let { releasePlayer() }
-            mPlayer = MediaPlayer()
-            mPlayer?.reset()
-            mPlayer?.setDataSource(this, Uri.parse(music.url))
-            mPlayer?.setOnErrorListener(this)
-            mPlayer?.setOnCompletionListener(this)
-            mPlayer?.prepareAsync()
-            mPlayer?.setOnPreparedListener {
-                mCurrentState = STATE_PREPRAED
-                sendStateChangeEvent(mCurrentState) //更新播放状态
-                if (isPlay) {
-                    //两首音乐播放间隔为500毫秒
-                    var time = System.currentTimeMillis() - temp
-                    if (time < 500) {
-                        Handler().postDelayed({ playMusic() }, 500 - time)
-                    } else {
-                        playMusic()
-                    }
-                }
-                Caches.saveInt("playingIndex", mPlayingIndex)
-                Android.log("音乐加载完成")
-            }
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Toast.makeText(this, "读取文件失败", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "播放错误", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    //播放音乐
-    private fun playMusic() {
-        mPlayer?.start()
-        mCurrentState = STATE_PLAYING
-        sendStateChangeEvent(mCurrentState) //更新播放状态
-        mHandler.sendEmptyMessage(0)
-        Android.log("播放音乐")
-    }
-
-    private fun play() {
-        if (mCurrentState == STATE_PREPRAED || mCurrentState == STATE_PAUSE) {
-            mCurrentState = STATE_PLAYING
-            sendStateChangeEvent(mCurrentState) //更新播放状态
-            startForeground(FOREGROUND_ID, getNotification(1, mPlayList[mPlayingIndex]))//更新通知栏
-            mPlayer?.start()
-            mHandler.sendEmptyMessage(0)
-            Android.log("播放音乐")
-        }
-    }
-
-    private fun pause() {
-        if (mCurrentState == STATE_PLAYING) {
-            mCurrentState = STATE_PAUSE
-            sendStateChangeEvent(mCurrentState) //更新播放状态
-            startForeground(FOREGROUND_ID, getNotification(0, mPlayList[mPlayingIndex]))//更新通知栏
-            mPlayer?.pause()
-            mHandler.removeMessages(0)
-            Android.log("暂停音乐")
-        }
-    }
-
-    private fun next() {
-        if (!mPlayList.isEmpty()) {
-            when (mCurrentMode) {
-                MODE_RANDOM -> {
-                }
-                MODE_LOOP -> {
-                    if (mPlayingIndex < (mPlayList.size - 1)) {
-                        mPlayingIndex++
-                    } else {
-                        mPlayingIndex = 0
-                    }
-                    loadMusic(mPlayList[mPlayingIndex], true)
-                }
-                MODE_SEQUENCE -> {
-                    if (mPlayingIndex == (mPlayList.size - 1)) {
-                        mPlayingIndex = -1
-                        playComplete()
-                    } else {
-                        mPlayingIndex++
-                        loadMusic(mPlayList[mPlayingIndex], true)
-                    }
-                }
-            }
-            startForeground(FOREGROUND_ID, getNotification(1, mPlayList[mPlayingIndex]))//更新通知栏
-        }
-    }
-
-    //播放完成
-    private fun playComplete() {
-        mCurrentState = STATE_IDLE
-        releasePlayer()
-        sendStateChangeEvent(mCurrentState) //更新播放状态
-        Caches.saveInt("playingIndex", 0)
-    }
-
-    //播放完成的回调
-    override fun onCompletion(mp: MediaPlayer?) {
-        next()
-    }
-
-    override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        return true
-    }
-
-    fun getPlayPosition(): Int {
-        return try {
-            if (mPlayer == null) 0 else mPlayer!!.currentPosition
-        } catch (e: Exception) {
-            0
-        }
-    }
-
-    private fun seekToPosition(position: Int) {
-        try {
-            mPlayer?.seekTo(position)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     private fun releasePlayer() {
