@@ -1,10 +1,10 @@
 package com.cs.kugou.utils
 
-import android.os.Environment
 import com.cs.framework.Android
+import com.cs.kugou.bean.Lyric
+import com.cs.kugou.lyric.formats.krc.KrcLyricReader
 import okhttp3.*
 import okio.Okio
-import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -22,13 +22,14 @@ object LyricUtils {
     val miarry = charArrayOf('@', 'G', 'a', 'w', '^', '2', 't', 'G', 'Q', '6', '1', '-', 'Î', 'Ò', 'n', 'i')
 
 
-    fun loadLyric(fileName: String, keyword: String, duration: String, hash: String, callback: (result: Boolean, lyricPath: String) -> Unit) {
+    fun loadLyric(fileName: String, keyword: String, duration: String, hash: String, callback: (result: Boolean, lyric: Lyric?) -> Unit) {
 
         var lyricFile = FileUtils.getLyricFiLe(fileName + ".krc")
 
         if (lyricFile != null) { //本地存在
             Android.log("歌词文件存在 $fileName")
-            callback(true, lyricFile.absolutePath)
+            var lyric = KrcLyricReader.readFile(lyricFile) //解析歌词
+            callback(true, lyric)
 
         } else {  //下载歌词
             var saveLyricFilePath = FileUtils.getFilePath(FileUtils.PATH_LYRIC, fileName + ".krc")
@@ -44,14 +45,16 @@ object LyricUtils {
                 override fun onFailure(call: Call?, e: IOException?) {
                     e?.printStackTrace()
                     Android.log("下载歌词错误  $e")
-                    callback(false, e.toString())
+                    callback(false, null)
                 }
 
                 override fun onResponse(call: Call?, response: Response?) {
                     val byteString = Okio.buffer(Okio.source(response?.body()?.byteStream())).readByteString()
                     Okio.buffer(Okio.sink(File(saveLyricFilePath))).write(byteString).close()
                     Android.log("歌词文件路径   $saveLyricFilePath")
-                    callback(true, saveLyricFilePath)
+
+                    var lyric = KrcLyricReader.readFile(File(saveLyricFilePath)) //解析歌词
+                    callback(true, lyric)
                 }
             })
         }
@@ -67,19 +70,19 @@ object LyricUtils {
      */
     @Throws(IOException::class)
     fun krc2Text(filenm: String): String {
-        val krcfile = File(filenm)
-        val zip_byte = ByteArray(krcfile.length().toInt())
-        val fileinstrm = FileInputStream(krcfile)
+        val krcFile = File(filenm)
+        val zipByte = ByteArray(krcFile.length().toInt())
+        val fileInstrm = FileInputStream(krcFile)
         val top = ByteArray(4)
-        fileinstrm.read(top)
-        fileinstrm.read(zip_byte)
-        val j = zip_byte.size
+        fileInstrm.read(top)
+        fileInstrm.read(zipByte)
+        val j = zipByte.size
 
         for (k in 0 until j) {
             val l = k % 16
-            zip_byte[k] = zip_byte[k] xor miarry[l].toByte()
+            zipByte[k] = zipByte[k] xor miarry[l].toByte()
         }
-        var result = String(ZLibUtils.decompress(zip_byte), Charset.defaultCharset())
+        var result = String(ZLibUtils.decompress(zipByte), Charset.defaultCharset())
 //        Okio.buffer(Okio.sink(File(Environment.getExternalStorageDirectory().absolutePath + File.separator + "lyrictest.txt")))
 //                .write(result.toByteArray()).close()
         return result

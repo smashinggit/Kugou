@@ -6,6 +6,8 @@ import android.widget.Toast
 import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.R
+import com.cs.kugou.bean.Lyric
+import com.cs.kugou.constant.Constant
 import com.cs.kugou.db.Music
 import com.cs.kugou.lyric.formats.krc.KrcLyricReader
 import com.cs.kugou.mvp.contract.MainContract
@@ -33,7 +35,7 @@ class MainPresenter(var mContext: MainActivity) : KBasePresenter<MainContract.Pr
             Handler().postDelayed({
                 var event = PlayerService.MusicActionEvent()
                 event.action = PlayerService.ACTION_LOAD
-                event.position = Caches.queryInt(mContext.resources.getString(R.string.music_playingIndex))
+                event.position = Caches.queryInt(Constant.PLAY_INDEX)
                 EventBus.getDefault().post(event)
             }, 300)
         }
@@ -91,8 +93,8 @@ class MainPresenter(var mContext: MainActivity) : KBasePresenter<MainContract.Pr
         when (event.state) {
             PlayerService.STATE_IDLE -> {
                 var default = Music()
-                default.musicName = "酷狗音乐"
-                default.singerName = "hello kugou"
+                default.musicName = mContext.resources.getString(R.string.app_name_cn)
+                default.singerName = mContext.resources.getString(R.string.app_hello)
                 default.duration = 100
                 ui?.setProgress(0)
                 ui?.updateMusicInfo(default)
@@ -121,10 +123,8 @@ class MainPresenter(var mContext: MainActivity) : KBasePresenter<MainContract.Pr
     private fun loadLyric(music: Music) {
         var keyword = if (music.singerName == "未知") music.musicName else music.singerName + " - " + music.musicName
 
-        var callBack = { result: Boolean, path: String ->
+        var callBack = { result: Boolean, lyric: Lyric? ->
             if (result) {   //加载成功
-                // PlayerService.mLyricPath = path
-                var lyric = KrcLyricReader.readFile(File(path)) //解析歌词
                 PlayerService.mLyric = lyric
                 Android.log("歌词加载完成")
             } else {//加载失败

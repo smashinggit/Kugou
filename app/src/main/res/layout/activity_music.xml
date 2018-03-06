@@ -12,9 +12,10 @@
         android:layout_height="46dp"
         android:gravity="center_vertical">
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:layout_width="34dp"
+            android:layout_height="46dp"
+            android:id="@+id/ivBackInMusic"
             android:src="@drawable/select_back" />
 
         <TextView
@@ -26,9 +27,10 @@
             android:textColor="@color/white"
             android:textSize="18dp" />
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:layout_width="34dp"
+            android:id="@+id/ivShareInMusic"
+            android:layout_height="46dp"
             android:layout_alignParentRight="true"
             android:src="@drawable/ic_share" />
     </RelativeLayout>
@@ -44,10 +46,10 @@
 
     <com.cs.kugou.widget.LyricView
         android:id="@+id/lyricView"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:layout_weight="1" />
 
     <LinearLayout
@@ -100,8 +102,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0:00"
-            android:textSize="10dp"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="10dp" />
 
         <SeekBar
             android:id="@+id/seekBarInMusic"
@@ -116,8 +118,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0:00"
-            android:textSize="10dp"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="10dp" />
     </LinearLayout>
 
     <RelativeLayout

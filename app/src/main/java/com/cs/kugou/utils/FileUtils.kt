@@ -11,15 +11,15 @@ import java.io.File
  */
 object FileUtils {
 
-    val PATH = "cKugou"
-    val PATH_LYRIC = PATH + File.separator + "lyrics"  //歌词目录
+    val folder = "KugouMusic"
+    val PATH_LYRIC = folder + File.separator + "lyrics"  //歌词目录
 
 
     /**
      * 通过 歌手名+歌曲名 获取歌词文件
      */
     fun getLyricFiLe(fileName: String): File? {
-        var root = File(getFilePath(PATH))
+        var root = File(getFilePath(folder))
         var lyricDir = File(getFilePath(PATH_LYRIC))
         var lyricFile = File(getFilePath(PATH_LYRIC, fileName))
 
@@ -30,6 +30,6 @@ object FileUtils {
         return if (lyricFile.exists()) lyricFile else null
     }
 
-    fun getFilePath(filePath: String) = Environment.getExternalStorageDirectory().path+ File.separator + filePath
-    fun getFilePath(filePath: String, fileName: String) = Environment.getExternalStorageDirectory().path +File.separator + filePath + File.separator + fileName
+    fun getFilePath(folderName: String) = Environment.getExternalStorageDirectory().path+ File.separator + folderName
+    fun getFilePath(folderName: String, fileName: String) = Environment.getExternalStorageDirectory().path +File.separator + folderName + File.separator + fileName
 }

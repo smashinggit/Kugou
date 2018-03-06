@@ -42,7 +42,7 @@ class App : Application() {
 
     companion object {
         lateinit var self: App
-        var isFirstSacanLocal: Boolean = true  //第一次扫描本地音乐(每次启动应用第一次进入本地音乐时扫描一次)
+        var needReadLocal = true  //是否需要从数据库读取本地音乐
     }
 
     override fun onCreate() {

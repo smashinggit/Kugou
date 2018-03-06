@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Kugou</string>
-    <string name="music_playingIndex">playingIndex</string>
+    <string name="app_name_cn">酷狗音乐</string>
+    <string name="app_hello">hello kugou</string>
 </resources>

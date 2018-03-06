@@ -22,6 +22,7 @@ import android.widget.Toast
 import com.cs.framework.Android
 import com.cs.kugou.R
 import com.cs.kugou.bean.Lyric
+import com.cs.kugou.constant.Constant
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.moudle.MusicMoudle
 import com.cs.kugou.mvp.view.MainView
@@ -69,7 +70,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         var mPlayList = arrayListOf<Music>()//播放列表
         var mPlayingIndex: Int = 0 //正在播放的音乐下标
-        var mLyricPath: String? = null      //歌词路径
         var mLyric: Lyric? = null           //歌词
 
         fun getCurrentMusic(): Music? = if (!mPlayList.isEmpty()) mPlayList[mPlayingIndex] else null  //获取当前音乐
@@ -197,7 +197,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         mCurrentState = STATE_IDLE
         releasePlayer()
         sendStateChangeEvent(mCurrentState) //更新播放状态
-        Caches.saveInt(resources.getString(R.string.music_playingIndex), 0)
+        Caches.saveInt(Constant.PLAY_INDEX, 0)
     }
 
     //加载音乐
@@ -230,7 +230,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                         play()
                     }
                 }
-                Caches.saveInt(resources.getString(R.string.music_playingIndex), mPlayingIndex)
+                Caches.saveInt(Constant.PLAY_INDEX, mPlayingIndex)
                 Android.log("音乐加载完成")
             }
 

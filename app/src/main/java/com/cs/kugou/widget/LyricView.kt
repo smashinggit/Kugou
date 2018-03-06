@@ -5,23 +5,16 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.AttributeSet
 import android.util.TypedValue
-import android.view.MotionEvent
-import android.view.VelocityTracker
-import android.view.View
-import android.view.ViewConfiguration
+import android.view.*
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.LinearInterpolator
 import android.view.animation.OvershootInterpolator
-import android.widget.Scroller
+import com.cs.framework.Android
 import com.cs.kugou.bean.Lyric
 
 /**
@@ -52,6 +45,8 @@ class LyricView : View {
     private var mLineSpace = 0f // 行间距（包含在行高中）
     private var mShaderWidth = 0f  // 渐变过渡的距离
 
+    private var mPlayButtonRadius = 0f  // 播放按钮的半径
+
     private var mLyricsWordIndex = -1  //当前歌词的第几个字
     private var mLyricsWordHLTime = 0f //当前歌词第几个字 已经播放的时间
 
@@ -64,7 +59,7 @@ class LyricView : View {
     private var mVelocityTracker: VelocityTracker? = null //速度检测
     private var mFlingAnimator: ValueAnimator? = null  //滑动动画
 
-    private var isUserTouch = false     //用户是否触摸歌词
+    private var isUserTouch = false       //用户是否触摸歌词
     private var isIndicatorShow = false   //是否滑动提示部分内容绘制
 
     private var mScrollY = 0f  // 纵轴偏移量
@@ -74,7 +69,7 @@ class LyricView : View {
     private var mLastScrollY = 0f
 
     private var mDefaultHint = "暂无歌词"
-    private lateinit var mLyric: Lyric
+    private var mLyric: Lyric? = null
 
     private var handler = @SuppressLint("HandlerLeak")
     object : Handler() {
@@ -103,6 +98,7 @@ class LyricView : View {
 
     private fun init(context: Context) {
         maximumFlingVelocity = ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
+        mPlayButtonRadius = getRawSize(TypedValue.COMPLEX_UNIT_DIP, 10f)
 
         mTextPaint = Paint()
         mTextPaint.isDither = true
@@ -119,6 +115,13 @@ class LyricView : View {
         mTextPaintHL.color = mHighLightColor
 
         mBtnPaint = Paint()
+        mBtnPaint.isDither = true
+        mBtnPaint.isAntiAlias = true
+        mBtnPaint.textAlign = Paint.Align.CENTER
+        mBtnPaint.color = mHighLightColor
+        mBtnPaint.style = Paint.Style.STROKE
+        mBtnPaint.textSize = getRawSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+
         mIndicatorPaint = Paint()
 
         measureLineHeight()
@@ -131,8 +134,8 @@ class LyricView : View {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (mLyric != null && mLyric.lyricLineInfo != null) {
-            var lineInfo = mLyric.lyricLineInfo
+        if (mLyric != null && mLyric?.lyricLineInfo != null) {
+            var lineInfo = mLyric?.lyricLineInfo
             for (i in 0 until lineInfo!!.size) {
                 var x = measuredWidth * 0.5f
                 var y = measuredHeight * 0.5f + (i + 0.5f) * mLineHeight - 6 - mLineSpace * 0.5f - mScrollY
@@ -140,88 +143,64 @@ class LyricView : View {
                 if (y + mLineHeight * 0.5f < 0) continue  //超出上视图
                 if (y - mLineHeight * 0.5f > measuredHeight) break //超出下视图
 
+                //播放行高亮
+                if (i == mCurrentPlayLine - 1) {
+                    mTextPaint.color = mHighLightColor
+                } else {
+                    mTextPaint.color = mDefaultColor
+                }
+
                 //歌词淡入淡出
                 when {
                     y < mShaderWidth -> mTextPaint.alpha = 26 + (23000.0f * y / mShaderWidth * 0.01f).toInt()
                     y > measuredHeight - mShaderWidth -> mTextPaint.alpha = 26 + (23000.0f * (measuredHeight - y) / mShaderWidth * 0.01f).toInt()
                     else -> mTextPaint.alpha = 255
                 }
-
                 lineInfo[i]?.let {
-                    if (i == mCurrentPlayLine - 1) {
-                        mTextPaint.color = mHighLightColor
-                    } else {
-                        mTextPaint.color = mDefaultColor
-                    }
-                    canvas.drawText(it.lineLyric, x, y, mTextPaint)
+                    canvas.drawText(lineInfo[i]?.lineLyric, x, y, mTextPaint)
                 }
             }
 
         } else {
-            canvas.drawText(mDefaultHint, measuredWidth * 0.5f, measuredHeight * 0.5f, mTextPaint)
+            canvas.drawText(mDefaultHint, measuredWidth * 0.5f, measuredHeight * 0.5f + 0.5f * mLineHeight, mTextPaint)
         }
 
-        if (isIndicatorShow) {
-            mTextPaint.alpha = 255
-            canvas.drawLine(0f, measuredHeight * 0.5f, measuredWidth.toFloat(), measuredHeight * 0.5f, mTextPaint)
-        }
+        if (isIndicatorShow && mLyric != null)
+            drawPlayButton(canvas)
     }
 
-//    //绘制动感歌词
-//    private fun drawDGLyric(canvas: Canvas, lyricLine: Lyric.LyricLine, x: Float, y: Float) {
-//        var lineLyricsHLWidth = 0f
-//        var lineLyric = lyricLine.lineLyric  //整行歌词
-//        var curLyricsWidth = mTextPaint.measureText(lineLyric) //整行歌词的宽度
-//
-//
-//
-//        if (mLyricsWordIndex == -1) {
-//            lineLyricsHLWidth = curLyricsWidth
-//        } else {
-//
-//            var lyricWords = lyricLine.lyricWords      //单个字的数组
-//            var wordInterval = lyricLine.wordInterval  //每个字持续时间的数组
-//
-//            // 当前歌词之前的歌词
-//            var lyricBefore = ""
-//            for (i in 0 until mLyricsWordIndex) {
-//                lyricWords?.let {
-//                    lyricBefore += it?.get(i)
-//                }
-//            }
-//            Android.log("之前的歌词  $lyricBefore")
-//            // 当前歌词之前的歌词长度
-//            val lyricsBeforeWordWidth = mTextPaint.measureText(lyricBefore)
-//
-//            // 当前歌词
-//            val lyricCurWord = lyricWords!![mLyricsWordIndex]!!.trim()
-//            // 当前歌词长度
-//            val lyricCurWordWidth = mTextPaint.measureText(lyricCurWord)
-//
-//            val len = lyricCurWordWidth / wordInterval!![mLyricsWordIndex]!! * mLyricsWordHLTime
-//            lineLyricsHLWidth = lyricsBeforeWordWidth + len
-//        }
-//        val curTextX = (width - curLyricsWidth) * 0.5f
-//
-//        // save和restore是为了剪切操作不影响画布的其它元素
-//        canvas.save()
-//
-//        // 画当前歌词
-//        canvas.drawText(lineLyric, curTextX, y, mTextPaint)
-//
-//        // 设置过渡的颜色和进度
-//        canvas.clipRect(curTextX, y - getRealTextHeight(mTextPaint), curTextX + lineLyricsHLWidth,
-//                y + getRealTextHeight(mTextPaint))
-//
-//        // 画当前歌词
-//        canvas.drawText(lineLyric, curTextX, y, mTextPaintHL)
-//        canvas.restore()
-//    }
+    private fun drawPlayButton(canvas: Canvas) {
+        var circleX = measuredWidth * 0.9f
+        var circleY = measuredHeight * 0.5f
+        var triangleRadius = mPlayButtonRadius * 0.85f
 
-//    private fun getRealTextHeight(paint: Paint): Int {
-//        val fm = paint.fontMetrics
-//        return (-fm.leading - fm.ascent + fm.descent).toInt()
-//    }
+        var textBound = Rect()
+        mBtnPaint.getTextBounds(getTimeByScrollY().toString(), 0, getTimeByScrollY().toString().length, textBound)
+        var textX = getRawSize(TypedValue.COMPLEX_UNIT_DIP, 10f) + textBound.width() * 0.5f
+        var textY = measuredHeight * 0.5f + textBound.height() * 0.5f
+        var textMargin = getRawSize(TypedValue.COMPLEX_UNIT_DIP, 60f)
+
+        var path = Path()
+        path.moveTo(circleX - triangleRadius / 3, (circleY - (triangleRadius / 3) * 1.72).toFloat())
+        path.lineTo(circleX + triangleRadius * 2 / 3, circleY)
+        path.lineTo(circleX - triangleRadius / 3, (circleY + (triangleRadius / 3) * 1.72).toFloat())
+        path.close()
+
+        mBtnPaint.style = Paint.Style.FILL
+        mBtnPaint.strokeWidth = getRawSize(TypedValue.COMPLEX_UNIT_DIP, 0.5f)
+        canvas.drawText(getTimeByScrollY().toString(), textX, textY, mBtnPaint)       //时间
+
+        mBtnPaint.style = Paint.Style.STROKE
+        mBtnPaint.strokeWidth = getRawSize(TypedValue.COMPLEX_UNIT_DIP, 1f)
+        canvas.drawCircle(circleX, circleY, mPlayButtonRadius, mBtnPaint)            //圆
+
+        mBtnPaint.style = Paint.Style.FILL
+        canvas.drawPath(path, mBtnPaint)                                            //三角形
+
+        mBtnPaint.strokeWidth = getRawSize(TypedValue.COMPLEX_UNIT_DIP, 1f)
+        mBtnPaint.strokeWidth = 1f
+        canvas.drawLine(textMargin, measuredHeight * 0.5f, measuredWidth - textMargin, measuredHeight * 0.5f, mBtnPaint)
+    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (mVelocityTracker == null)
@@ -262,11 +241,10 @@ class LyricView : View {
         val value01 = scrollY - mLineCount * mLineHeight * 0.5f   // 52  -52  8  -8  总高度的一半
         val value02 = Math.abs(value01) - mLineCount * mLineHeight * 0.5f   // 2  2  -42  -42
         mScrollY = if (value02 > 0) scrollY - measureDampingDistance(value02) * value01 / Math.abs(value01) else scrollY   //   value01 / Math.abs(value01)  控制滑动方向
-
         mVelocityTracker?.let {
             mVelocity = it.yVelocity
         }
-        //    measureCurrentLine()
+        measureCurrentLine()
     }
 
     private fun actionUp(event: MotionEvent) {
@@ -341,7 +319,7 @@ class LyricView : View {
     fun setCurrentTimeMillis(time: Long) {
         var position = 0
         for (i in 0 until mLineCount) {
-            var lineInfo = mLyric.lyricLineInfo?.get(i)
+            var lineInfo = mLyric?.lyricLineInfo?.get(i)
             if (lineInfo != null && lineInfo.startTime > time) {
                 position = i
                 break
@@ -378,6 +356,10 @@ class LyricView : View {
         return (line - 1) * mLineHeight
     }
 
+    //获取滑动行的开始时间
+    private fun getTimeByScrollY() = mLyric?.lyricLineInfo?.get(mCurrentShowLine)?.startTime
+
+
     private fun measureLineHeight() {
         var lineBound = Rect()
         mTextPaint.getTextBounds(mDefaultHint, 0, mDefaultHint.length, lineBound)
@@ -387,7 +369,7 @@ class LyricView : View {
 
     fun setLyric(lyric: Lyric) {
         mLyric = lyric
-        mLyric.lyricLineInfo?.let {
+        mLyric?.lyricLineInfo?.let {
             mLineCount = it.size
         }
         invalidateView()
@@ -403,7 +385,7 @@ class LyricView : View {
         }
     }
 
-    private fun getRawSize(unit: Int, size: Float): Float {
+    private fun getRawSize(unit: Int = TypedValue.COMPLEX_UNIT_DIP, size: Float): Float {
         return TypedValue.applyDimension(unit, size, resources.displayMetrics)
     }
 }

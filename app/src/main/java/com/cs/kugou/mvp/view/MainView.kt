@@ -24,7 +24,7 @@ import org.greenrobot.eventbus.EventBus
  * data : 2018/1/19
  * desc:
  */
-class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, MainContract.View, MainActivity>(activity), MainContract.View {
+class MainView(val mContext: MainActivity) : KBaseView<MainContract.Presenter, MainContract.View, MainActivity>(mContext), MainContract.View {
 
 
     var fragmentList = arrayListOf<Fragment>()
@@ -34,17 +34,17 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
         fragmentList.add(ListenFragment())
         fragmentList.add(ListenFragment())
 
-        activity.viewPager.adapter = MainPagerAdapter(activity, fragmentList, activity.supportFragmentManager)
-        activity.tablayout.setupWithViewPager(activity.viewPager)
+        mContext.viewPager.adapter = MainPagerAdapter(mContext, fragmentList, mContext.supportFragmentManager)
+        mContext.tablayout.setupWithViewPager(mContext.viewPager)
         for (i in 0..2) {
-            activity.tablayout.getTabAt(i)?.customView = getTabView(i)
+            mContext.tablayout.getTabAt(i)?.customView = getTabView(i)
         }
 
-        activity.ivPlay.setOnClickListener { presenter?.play() }
-        activity.ivPause.setOnClickListener { presenter?.pause() }
-        activity.ivNext.setOnClickListener { presenter?.next() }
+        mContext.ivPlay.setOnClickListener { presenter?.play() }
+        mContext.ivPause.setOnClickListener { presenter?.pause() }
+        mContext.ivNext.setOnClickListener { presenter?.next() }
 
-        activity.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        mContext.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
             }
 
@@ -60,37 +60,37 @@ class MainView(val activity: MainActivity) : KBaseView<MainContract.Presenter, M
 
 
     override fun showPlay() {
-        activity.ivPlay.visibility = View.VISIBLE
-        activity.ivPause.visibility = View.GONE
+        mContext.ivPlay.visibility = View.VISIBLE
+        mContext.ivPause.visibility = View.GONE
     }
 
     override fun showPause() {
-        activity.ivPlay.visibility = View.GONE
-        activity.ivPause.visibility = View.VISIBLE
+        mContext.ivPlay.visibility = View.GONE
+        mContext.ivPause.visibility = View.VISIBLE
     }
     override fun hidePlay() {
-        activity.ivPlay.visibility = View.GONE
-        activity.ivPause.visibility = View.GONE
+        mContext.ivPlay.visibility = View.GONE
+        mContext.ivPause.visibility = View.GONE
     }
 
     override fun setProgress(progress: Int) {
-        activity.seekBar.progress = progress
+        mContext.seekBar.progress = progress
     }
 
     override fun updateMusicInfo(music: Music?) {
         music?.let {
-            activity.tvMusicName.text = it.musicName
-            activity.tvArtist.text = it.singerName
-            activity.seekBar.max = it.duration
+            mContext.tvMusicName.text = it.musicName
+            mContext.tvArtist.text = it.singerName
+            mContext.seekBar.max = it.duration
         }
     }
 
     override fun showFragment(isShow: Boolean) {
-        activity.flContent.visibility = if (isShow) View.VISIBLE else View.GONE
+        mContext.flContent.visibility = if (isShow) View.VISIBLE else View.GONE
     }
 
     fun getTabView(position: Int): View {
-        var tabview = MyTabView(activity)
+        var tabview = MyTabView(mContext)
         val tabIcon = tabview.findViewById<ImageView>(R.id.tabIcon)
         when (position) {
             0 -> tabIcon.setImageResource(R.drawable.select_tab0)

@@ -26,6 +26,5 @@ class MusicActivity : BaseActivity() {
         mView = MusicView(this)
         mPresenter = MusicPresenter(this)
         mPresenter.bind(mView)
-
     }
 }

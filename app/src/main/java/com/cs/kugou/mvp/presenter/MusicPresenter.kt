@@ -3,6 +3,7 @@ package com.cs.kugou.mvp.presenter
 import android.app.Activity
 import android.content.Context
 import android.widget.Toast
+import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.contract.MusicContract

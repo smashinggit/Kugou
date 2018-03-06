@@ -36,7 +36,6 @@ class MusicView(val activity: MusicActivity) : KBaseView<MusicContract.Presenter
             activity.tvSingerNameInMusic.text = it.singerName
             activity.seekBarInMusic.max = it.duration
             activity.tvTotalTime.text = it.duration.toString()
-
         }
     }
 
@@ -58,6 +57,8 @@ class MusicView(val activity: MusicActivity) : KBaseView<MusicContract.Presenter
         activity.ivPauseInMUsic.setOnClickListener { presenter?.pause() }
         activity.ivNextInMusic.setOnClickListener { presenter?.next() }
         activity.ivPreInMusic.setOnClickListener { presenter?.next() }
+        activity.ivBackInMusic.setOnClickListener { activity.finish() }
+        activity.ivShareInMusic.setOnClickListener { }
 
         activity.seekBarInMusic.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
