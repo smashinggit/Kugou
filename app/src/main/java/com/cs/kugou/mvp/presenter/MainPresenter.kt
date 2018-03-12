@@ -104,7 +104,13 @@ class MainPresenter(var mContext: MainActivity) : KBasePresenter<MainContract.Pr
                 ui?.setProgress(0)
                 ui?.showPlay()
                 PlayerService.getCurrentMusic()?.let {
-                    loadLyric(it) //加载歌词
+                    //加载歌词
+                    MusicMoudle.loadLyric(it) { result, lyric ->
+                        if (result)
+                            PlayerService.mLyric = lyric
+                        else
+                            Toast.makeText(mContext, mContext.resources.getString(R.string.tip_getLyric_failed), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             PlayerService.STATE_PREPRAED -> {
@@ -117,21 +123,6 @@ class MainPresenter(var mContext: MainActivity) : KBasePresenter<MainContract.Pr
                 ui?.showPlay()
             }
         }
-    }
-
-    //加载歌词
-    private fun loadLyric(music: Music) {
-        var keyword = if (music.singerName == "未知") music.musicName else music.singerName + " - " + music.musicName
-
-        var callBack = { result: Boolean, lyric: Lyric? ->
-            if (result) {   //加载成功
-                PlayerService.mLyric = lyric
-                Android.log("歌词加载完成")
-            } else {//加载失败
-                Toast.makeText(mContext, "获取歌词失败", Toast.LENGTH_SHORT).show()
-            }
-        }
-        LyricUtils.loadLyric(keyword, keyword, music.duration.toString(), music.hash, callBack)
     }
 
     // 向PlayerService发送指令，控制音乐

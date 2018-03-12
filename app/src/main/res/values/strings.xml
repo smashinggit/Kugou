@@ -2,4 +2,8 @@
     <string name="app_name">Kugou</string>
     <string name="app_name_cn">酷狗音乐</string>
     <string name="app_hello">hello kugou</string>
+
+    <string name="tip_select_music">请选择一首音乐</string>
+    <string name="tip_getLyric_failed">获取歌词失败</string>
+
 </resources>

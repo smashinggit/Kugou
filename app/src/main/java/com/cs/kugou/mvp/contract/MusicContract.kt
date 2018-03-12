@@ -2,6 +2,7 @@ package com.cs.kugou.mvp.contract
 
 import com.cs.framework.mvp.kt.KPresenter
 import com.cs.framework.mvp.kt.KView
+import com.cs.kugou.bean.Lyric
 import com.cs.kugou.db.Music
 
 /**
@@ -24,6 +25,8 @@ interface MusicContract {
         fun showPause()
         fun updateMusicInfo(music: Music?)
         fun setProgress(progress: Int)
+        fun setLyric(lyric: Lyric)
+        fun resetLyric()
     }
 
 }

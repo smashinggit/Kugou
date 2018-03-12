@@ -375,6 +375,12 @@ class LyricView : View {
         invalidateView()
     }
 
+    fun reset() {
+        mLyric = null
+        mLineCount = 0
+        invalidateView()
+    }
+
     private fun invalidateView() {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             //  当前线程是主UI线程，直接刷新。

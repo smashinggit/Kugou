@@ -1,15 +1,15 @@
 package com.cs.kugou.mvp.presenter
 
-import android.app.Activity
-import android.content.Context
 import android.widget.Toast
 import com.cs.framework.Android
 import com.cs.framework.mvp.kt.KBasePresenter
+import com.cs.kugou.R
+import com.cs.kugou.bean.Lyric
 import com.cs.kugou.db.Music
 import com.cs.kugou.mvp.contract.MusicContract
 import com.cs.kugou.service.PlayerService
 import com.cs.kugou.ui.MusicActivity
-import kotlinx.android.synthetic.main.activity_music.*
+import com.cs.kugou.utils.LyricUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -27,7 +27,7 @@ class MusicPresenter(var mContext: MusicActivity) : KBasePresenter<MusicContract
         if (PlayerService.mCurrentState == PlayerService.STATE_PREPRAED || PlayerService.mCurrentState == PlayerService.STATE_PAUSE) {
             sendMusicActionEvent(PlayerService.ACTION_PLAY)
         } else {
-            Toast.makeText(mContext, "请选择一首音乐", Toast.LENGTH_SHORT).show()
+            Toast.makeText(mContext, mContext.resources.getString(R.string.tip_select_music), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -53,7 +53,12 @@ class MusicPresenter(var mContext: MusicActivity) : KBasePresenter<MusicContract
     fun onPlayingInfoEvent(event: PlayerService.PlayingInfoEvent) {
         ui?.updateMusicInfo(event.music)
         ui?.setProgress(event.progress)
-        mContext.lyricView.setCurrentTimeMillis(event.progress.toLong())
+    }
+
+    //更新歌词 (发送源PlayerService)
+    @Subscribe
+    fun onLyricChangedEvent(event: PlayerService.LyricChangeEvent) {
+        ui?.setLyric(event.lyric)
     }
 
     //更新播放状态 (发送源PlayerService)
@@ -72,6 +77,7 @@ class MusicPresenter(var mContext: MusicActivity) : KBasePresenter<MusicContract
             PlayerService.STATE_LOADING -> {
                 ui?.setProgress(0)
                 ui?.showPlay()
+                ui?.resetLyric()
             }
             PlayerService.STATE_PREPRAED -> {
                 ui?.showPlay()
@@ -88,7 +94,7 @@ class MusicPresenter(var mContext: MusicActivity) : KBasePresenter<MusicContract
     /**
      * 向PlayerService发送指令，控制音乐
      */
-    fun sendMusicActionEvent(action: Int) {
+    private fun sendMusicActionEvent(action: Int) {
         var event = PlayerService.MusicActionEvent()
         event.action = action
         EventBus.getDefault().post(event)
@@ -100,7 +106,7 @@ class MusicPresenter(var mContext: MusicActivity) : KBasePresenter<MusicContract
             ui?.showPause()
         }
         PlayerService.mLyric?.let {
-            mContext.lyricView.setLyric(it)
+            ui?.setLyric(it)
         }
     }
 

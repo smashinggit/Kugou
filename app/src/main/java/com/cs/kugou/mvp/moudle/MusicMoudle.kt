@@ -1,8 +1,12 @@
 package com.cs.kugou.mvp.moudle
 
+import android.widget.Toast
 import com.cs.framework.Android
+import com.cs.kugou.R
+import com.cs.kugou.bean.Lyric
 import com.cs.kugou.db.*
 import com.cs.kugou.service.PlayerService
+import com.cs.kugou.utils.LyricUtils
 import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.sql.language.*
 import org.greenrobot.eventbus.EventBus
@@ -115,12 +119,12 @@ object MusicMoudle {
     }
 
 
-    fun insert(music: Music) {
+    private fun insert(music: Music) {
         music.async().save()
         Android.log("插入一条数据 ${music.hash}")
     }
 
-    fun insert(type: MusicType) {
+    private fun insert(type: MusicType) {
         type.async().save()
         Android.log("插入一条类型 ${type.tid}")
     }
@@ -148,8 +152,7 @@ object MusicMoudle {
     }
 
     //判断是否存在
-    fun isExistType(hash: String, type: Int): Boolean {
-
+    private fun isExistType(hash: String, type: Int): Boolean {
         (select from MusicType::class
                 where (MusicType_Table.mHash eq hash
                 and (MusicType_Table.tid eq type))
@@ -161,5 +164,11 @@ object MusicMoudle {
             }
         }
         return false
+    }
+
+    //加载歌词
+    fun loadLyric(music: Music, callBack: (result: Boolean, lyric: Lyric?) -> Unit) {
+        var keyword = if (music.singerName == "未知") music.musicName else music.singerName + " - " + music.musicName
+        LyricUtils.loadLyric(keyword, keyword, music.duration.toString(), music.hash, callBack)
     }
 }

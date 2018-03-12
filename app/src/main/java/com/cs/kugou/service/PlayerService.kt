@@ -70,7 +70,13 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         var mPlayList = arrayListOf<Music>()//播放列表
         var mPlayingIndex: Int = 0 //正在播放的音乐下标
-        var mLyric: Lyric? = null           //歌词
+        var mLyric: Lyric? = null  //歌词
+            set(value) {
+                field = value
+                field?.let {
+                    EventBus.getDefault().post(LyricChangeEvent(it)) //歌词改变
+                }
+            }
 
         fun getCurrentMusic(): Music? = if (!mPlayList.isEmpty()) mPlayList[mPlayingIndex] else null  //获取当前音乐
     }
@@ -128,6 +134,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             }
         }
     }
+
     //播放进度(发送源：相关操作页面)
     @Subscribe
     fun onSeekExevt(event: MainView.SeekEvent) {
@@ -250,6 +257,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     //播放错误的回调
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
+        mLyric = null
         return true
     }
 
@@ -335,7 +343,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     //发送播放状态改变事件
-    fun sendStateChangeEvent(state: Int) {
+    private fun sendStateChangeEvent(state: Int) {
         EventBus.getDefault().post(StateChangeEvent(state))
     }
 
@@ -347,7 +355,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     class PlayingInfoEvent(var music: Music?, var progress: Int = 0)//播放信息
 
-    class StateChangeEvent(var state: Int)//播放状态改变事件
+    class StateChangeEvent(var state: Int) //播放状态改变事件
+    class LyricChangeEvent(var lyric: Lyric)//歌词改变事件
 
     inner class RemoteViewReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
